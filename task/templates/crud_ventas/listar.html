@@ -1,0 +1,44 @@
+{% extends 'index_master.html' %}
+
+{% block content %}
+
+<div class="right_col" role="main">
+
+    <h1>Listado de Ventas</h1>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-borderless table-sm table-light">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Descripción</th>
+              <th scope="col">Fecha de Venta</th>
+              <th scope="col">Tipo de Venta</th>
+              <th scope="col">Total</th>
+              <th scope="col">Tienda</th>
+              <th scope="col">Vendedor</th>
+              <th scope="col">Comprobante</th>
+              <th scope="col">Cliente</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for v in venta %}
+            <tr>
+              <th scope="row">{{ forloop.counter }}</th> <!-- Número de fila -->
+              <td>{{ v.descripcion }}</td>
+              <td>{{ v.fecha_venta }}</td>
+              <td>{{ v.tipo_venta }}</td>
+              <td>{{ v.total }}</td>
+              <td>{{ v.tienda.nombre }}</td>
+              <td>{{ v.vendedor.nombre }}</td>
+              <td>{{ v.comprobante.numero_comprobante }}</td>
+              <td>{{ v.cliente.nombre }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

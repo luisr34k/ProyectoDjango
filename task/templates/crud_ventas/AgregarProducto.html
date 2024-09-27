@@ -1,0 +1,81 @@
+{% extends 'index_master.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="right_col" role="main">
+    <h1>Agregar Producto</h1>
+    
+    <form action="" method="POST">
+        {% csrf_token %}
+        
+        <!-- Campo de nombre del producto fuera de los recuadros -->
+
+
+        <div class="row">
+            <!-- Primer recuadro -->
+            <div class="col-md-6">
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-header">
+                        <h2>Información del Producto</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-4">
+                            {{ form.nombre.label_tag }}
+                            {{ form.nombre|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.descripcion.label_tag }}
+                            {{ form.descripcion|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.precio_compra.label_tag }}
+                            {{ form.precio_compra|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.precio_venta.label_tag }}
+                            {{ form.precio_venta|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.stock.label_tag }}
+                            {{ form.stock|add_class:"form-control" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Segundo recuadro -->
+            <div class="col-md-6">
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-header">
+                        <h2>Atributos del Producto</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            {{ form.color.label_tag }}
+                            {{ form.color|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.marca.label_tag }}
+                            {{ form.marca|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.tamano.label_tag }}
+                            {{ form.tamano|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.proveedor.label_tag }}
+                            {{ form.proveedor|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.tienda.label_tag }}
+                            {{ form.tienda|add_class:"form-control" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+</div>
+{% endblock %}

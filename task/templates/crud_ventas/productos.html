@@ -1,0 +1,36 @@
+{% extends 'index_master.html' %}
+
+{% block content %}
+
+<div class="right_col" role="main">
+
+    <h1>Listado de Productos</h1>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-borderless table-sm table-light">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Nombre del Producto</th>
+              <th scope="col">Precio</th>
+              <th scope="col">Color</th>
+              <th scope="col">Stock Disponible</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for producto in producto %}
+            <tr>
+              <th scope="row">{{ forloop.counter }}</th> <!-- Número de fila -->
+              <td>{{ producto.nombre }}</td>
+              <td>{{ producto.precio_venta }}</td>
+              <td>{{ producto.color.nombre }}</td>
+              <td>{{ producto.stock }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}
