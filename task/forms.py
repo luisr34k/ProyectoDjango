@@ -1,6 +1,15 @@
+#forms.py
 from django.forms import ModelForm, inlineformset_factory
 from django import forms
-from .models import Venta, DetalleVenta, Producto
+from .models import Venta, DetalleVenta, Producto, Marca
+
+class MarcaForm(forms.ModelForm):
+    class Meta:
+        model = Marca
+        fields = ['nombre']  # Cambia esto según tus necesidades
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la Marca'}),
+        }
 
 class AgregarProductoForm(forms.ModelForm):
     class Meta:
@@ -17,7 +26,6 @@ class AgregarProductoForm(forms.ModelForm):
             'proveedor': forms.Select(attrs={'class': 'form-control'}),
             'tienda': forms.Select(attrs={'class': 'form-control'}),  # Incluye 'tienda' con su widget
         }
-
 
 
 class DetalleVentaForm(forms.ModelForm):
@@ -43,3 +51,4 @@ class CrearVentaForm(forms.ModelForm):
 
 
 DetalleVentaFormSet = inlineformset_factory(Venta, DetalleVenta, form=DetalleVentaForm, extra=1)
+

@@ -1,3 +1,7 @@
+#views.py
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
@@ -5,11 +9,17 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from .forms import CrearVentaForm, DetalleVentaFormSet, AgregarProductoForm
-from django.utils import timezone
-from .models import Comprobante, Venta, Producto
 from django.db.models import Max
 from django.http import JsonResponse
+
+# Third-party imports
+from rest_framework import generics
+
+# Local app imports
+from .forms import CrearVentaForm, DetalleVentaFormSet, AgregarProductoForm, MarcaForm
+from .models import Comprobante, Venta, Producto, Marca
+from .serializers import MarcaSerializer
+
 
 
 
@@ -18,9 +28,12 @@ TEMPLATE_DIRS = (
     'os.path.join(BASE_DIR, "templates")'
 )
 
+
 @login_required
 def home(request):
     return render (request, "index.html")
+
+#funciones signin, signup, logout
 
 @login_required
 def signup(request):
@@ -39,8 +52,7 @@ def signup(request):
                 return render(request, 'signup.html', {"form": UserCreationForm, "error": "Username already exists."})
 
         return render(request, 'signup.html', {"form": UserCreationForm, "error": "Passwords did not match."})
- 
-  
+   
 def signin(request):
     if request.method == 'GET':
         return render(request, 'signin.html', {"form": AuthenticationForm})
@@ -57,6 +69,8 @@ def signin(request):
 def logout_view(request):
     logout(request)
     return redirect('signin')  # Redirige a la página de inicio de sesión
+
+#funciones crud ventas
 
 @login_required       
 def listar(request):
@@ -176,9 +190,50 @@ def contado(request):
         'formset': formset
     })
 
+class MarcaListCreate(generics.ListCreateAPIView):
+    queryset = Marca.objects.all()
+    serializer_class = MarcaSerializer
+    
+def agregar_marca(request):
+    if request.method == 'POST':
+        form = MarcaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('marcas')  # Redirige a la lista de marcas después de guardar
+    else:
+        form = MarcaForm()
+    return render(request, 'elementos/marcas.html', {'form': form})
+
+
+@login_required
+def descargar_comprobante_pdf(request, venta_id):
+    # Obtener la venta seleccionada
+    venta = get_object_or_404(Venta, id=venta_id)
+    
+    # Definir el contexto para la plantilla
+    context = {
+        'venta': venta,
+        'detalles': venta.detalleventa_set.all(),  # Obtener los detalles de la venta
+    }
+    
+    # Renderizar la plantilla a un string
+    template = render_to_string('elementos/pdf_comprobante.html', context)
+
+    # Crear el objeto HttpResponse con el contenido PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Comprobante_{venta.comprobante.numero_comprobante}.pdf"'
+
+    # Convertir el HTML a PDF
+    pisa_status = pisa.CreatePDF(template, dest=response)
+
+    # Verificar si hubo errores
+    if pisa_status.err:
+        return HttpResponse('Ocurrió un error al generar el PDF', status=400)
+    
+    return response
+
 #funciones Logicas
 
-# Luego, usa esta función para asignar el número de comprobante
 def generate_comprobante_number():
     last_comprobante = Comprobante.objects.aggregate(Max('numero_comprobante'))
     last_number = last_comprobante['numero_comprobante__max']
@@ -221,3 +276,4 @@ def buscar_producto(request):
             })
         return JsonResponse({'resultados': resultados})
     return JsonResponse({'resultados': []})
+

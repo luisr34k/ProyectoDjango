@@ -1,8 +1,9 @@
+#urls.py from task
 from django.contrib import admin
 from django.urls import path
-
-from django import views
 from . import views
+from .views import MarcaListCreate, descargar_comprobante_pdf
+
 
 urlpatterns = [
     #path('admin', admin.site.urls),
@@ -19,6 +20,8 @@ urlpatterns = [
     path('AgregarProducto/', views.agregarProducto, name='AgregarProducto'),
     path('obtener_producto/', views.obtener_producto, name='obtener_producto'),
     path('buscar_producto/', views.buscar_producto, name='buscar_producto'),
-    path('marcas/', views.marcas, name='marcas'),
+    path('marcas/', MarcaListCreate.as_view(), name='marcas'),
+    path('marcas/agregar/', views.agregar_marca, name='agregar_marca'),
+    path('descargar_comprobante/<int:venta_id>/', descargar_comprobante_pdf, name='descargar_comprobante'),
     
 ]

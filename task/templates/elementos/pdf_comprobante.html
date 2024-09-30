@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de Venta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .details, .products {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .details td, .products th, .products td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .products th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ venta.comprobante.nombre }}</h1>
+        <p><strong>Tipo de Comprobante:</strong> {{ venta.comprobante.tipo_comprobante }}</p>
+        <p><strong>Número de Comprobante:</strong> {{ venta.comprobante.numero_comprobante }}</p>
+        <p><strong>Fecha de Emisión:</strong> {{ venta.comprobante.fecha_emision }}</p>
+    </div>
+
+    <h2>Detalles de la Venta</h2>
+    <table class="details">
+        <tr>
+            <td><strong>Descripción</strong></td>
+            <td>{{ venta.descripcion }}</td>
+        </tr>
+        <tr>
+            <td><strong>Fecha de Venta</strong></td>
+            <td>{{ venta.fecha_venta }}</td>
+        </tr>
+        <tr>
+            <td><strong>Total</strong></td>
+            <td>{{ venta.total }}</td>
+        </tr>
+        <tr>
+            <td><strong>Cliente</strong></td>
+            <td>{{ venta.cliente.nombre }}</td>
+        </tr>
+        <tr>
+            <td><strong>Vendedor</strong></td>
+            <td>{{ venta.vendedor.nombre }}</td>
+        </tr>
+    </table>
+
+    <h2>Productos Vendidos</h2>
+    <table class="products">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in detalles %}
+            <tr>
+                <td>{{ detalle.producto.nombre }}</td>
+                <td>{{ detalle.cantidad }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

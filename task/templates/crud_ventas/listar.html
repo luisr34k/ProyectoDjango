@@ -1,11 +1,8 @@
 {% extends 'index_master.html' %}
 
 {% block content %}
-
 <div class="right_col" role="main">
-
     <h1>Listado de Ventas</h1>
-
     <div class="table-responsive">
         <table class="table table-striped table-borderless table-sm table-light">
           <thead>
@@ -19,12 +16,13 @@
               <th scope="col">Vendedor</th>
               <th scope="col">Comprobante</th>
               <th scope="col">Cliente</th>
+              <th scope="col">Acciones</th> <!-- Nueva columna para las acciones -->
             </tr>
           </thead>
           <tbody>
             {% for v in venta %}
             <tr>
-              <th scope="row">{{ forloop.counter }}</th> <!-- Número de fila -->
+              <th scope="row">{{ forloop.counter }}</th>
               <td>{{ v.descripcion }}</td>
               <td>{{ v.fecha_venta }}</td>
               <td>{{ v.tipo_venta }}</td>
@@ -33,12 +31,13 @@
               <td>{{ v.vendedor.nombre }}</td>
               <td>{{ v.comprobante.numero_comprobante }}</td>
               <td>{{ v.cliente.nombre }}</td>
+              <td>
+                <a href="{% url 'descargar_comprobante' v.id %}" class="btn btn-primary btn-sm">Comprobante</a>
+              </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
     </div>
-
 </div>
-
 {% endblock %}

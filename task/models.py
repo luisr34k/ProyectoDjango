@@ -1,3 +1,4 @@
+# models.py
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -84,6 +85,17 @@ class Venta(models.Model):
 
     def __str__(self):
         return f"Venta {self.id} - Total: {self.total}"
+ 
+class Comprobante(models.Model):
+    id_comprobante = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=255)
+    tipo_comprobante = models.CharField(max_length=50)
+    numero_comprobante = models.CharField(max_length=50, unique=True)
+    fecha_emision = models.DateField()
+    
+    def __str__(self):
+        return f"Comprobante {self.numero_comprobante}"
+
     
 class PagoCredito(models.Model):
     venta_credito = models.ForeignKey('VentaCredito', on_delete=models.CASCADE)
@@ -110,16 +122,6 @@ class Cliente(models.Model):
     def __str__(self):
         return f"{self.nombre} - NIT: {self.nit}" if self.nit else self.nombre
     
-class Comprobante(models.Model):
-    id_comprobante = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=255)
-    tipo_comprobante = models.CharField(max_length=50)
-    numero_comprobante = models.CharField(max_length=50, unique=True)
-    fecha_emision = models.DateField()
-    
-    def __str__(self):
-        return f"Comprobante {self.numero_comprobante}"
-
     
 class VentaCredito(models.Model):
     venta = models.OneToOneField('Venta', on_delete=models.CASCADE)  # Relación con Venta
