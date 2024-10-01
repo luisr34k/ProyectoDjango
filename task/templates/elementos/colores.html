@@ -3,11 +3,11 @@
 
 {% block content %}
 <div class="right_col" role="main">
-    <h1>Agregar Marca</h1>
+    <h1>Agregar Color</h1>
 <form method="post" novalidate>
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Agregar Marca</button>
+    <button type="submit" class="btn btn-primary">Agregar Color</button>
 </form>
 </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 #forms.py
 from django.forms import ModelForm, inlineformset_factory
 from django import forms
-from .models import Venta, DetalleVenta, Producto, Marca
+from .models import Venta, DetalleVenta, Producto, Marca, Color
 
 class MarcaForm(forms.ModelForm):
     class Meta:
@@ -10,7 +10,14 @@ class MarcaForm(forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la Marca'}),
         }
-
+        
+class ColorForm(forms.ModelForm):
+    class Meta:
+        model = Color
+        fields = ['nombre']  # Asegúrate de que sea el nombre correcto del campo
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del color'}),
+        }
 class AgregarProductoForm(forms.ModelForm):
     class Meta:
         model = Producto

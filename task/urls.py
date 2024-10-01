@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.urls import path
 from . import views
-from .views import MarcaListCreate, descargar_comprobante_pdf
+from .views import MarcaListCreate, ColorListCreate, descargar_comprobante_pdf
 
 
 urlpatterns = [
@@ -22,6 +22,9 @@ urlpatterns = [
     path('buscar_producto/', views.buscar_producto, name='buscar_producto'),
     path('marcas/', MarcaListCreate.as_view(), name='marcas'),
     path('marcas/agregar/', views.agregar_marca, name='agregar_marca'),
+    path('colores/', ColorListCreate.as_view(), name='colores'),
+    path('colores/agregar/', views.agregar_color, name='agregar_color'),
+    
     path('descargar_comprobante/<int:venta_id>/', descargar_comprobante_pdf, name='descargar_comprobante'),
     
 ]

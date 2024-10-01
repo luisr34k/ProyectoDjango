@@ -16,9 +16,9 @@ from django.http import JsonResponse
 from rest_framework import generics
 
 # Local app imports
-from .forms import CrearVentaForm, DetalleVentaFormSet, AgregarProductoForm, MarcaForm
-from .models import Comprobante, Venta, Producto, Marca
-from .serializers import MarcaSerializer
+from .forms import CrearVentaForm, DetalleVentaFormSet, AgregarProductoForm, MarcaForm, ColorForm
+from .models import Comprobante, Venta, Producto, Marca, Color
+from .serializers import MarcaSerializer, ColorSerializer
 
 
 
@@ -204,6 +204,19 @@ def agregar_marca(request):
         form = MarcaForm()
     return render(request, 'elementos/marcas.html', {'form': form})
 
+class ColorListCreate(generics.ListCreateAPIView):
+    queryset = Color.objects.all()  # Cambia Marca a Color
+    serializer_class = ColorSerializer
+    
+def agregar_color(request):
+    if request.method == 'POST':
+        form = ColorForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('colores')  # Redirige a la lista de marcas después de guardar
+    else:
+        form = ColorForm()
+    return render(request, 'elementos/colores.html', {'form': form})
 
 @login_required
 def descargar_comprobante_pdf(request, venta_id):
