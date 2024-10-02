@@ -60,6 +60,24 @@ class Tamano(models.Model):
     def __str__(self):
         return self.nombre
     
+class Vendedor(models.Model):
+    nombre = models.CharField(max_length=255)
+    telefono = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.nombre
+    
+class Cliente(models.Model):
+    nombre = models.CharField(max_length=255)
+    correo = models.EmailField()
+    telefono = models.CharField(max_length=20)
+    direccion = models.CharField(max_length=255)
+    nit = models.CharField(max_length=20, blank=True, null=True)  # Campo NIT agregado
+
+    def __str__(self):
+        return f"{self.nombre} - NIT: {self.nit}" if self.nit else self.nombre
+    
+    
 # Campos de la venta   
 class DetalleVenta(models.Model):
     venta = models.ForeignKey('Venta', on_delete=models.CASCADE) 
@@ -102,25 +120,6 @@ class PagoCredito(models.Model):
     fecha_pago = models.DateField()
     monto_pago = models.DecimalField(max_digits=10, decimal_places=2)
     saldo_pendiente = models.DecimalField(max_digits=10, decimal_places=2)
-    
-
-
-class Vendedor(models.Model):
-    nombre = models.CharField(max_length=255)
-    telefono = models.CharField(max_length=20)
-
-    def __str__(self):
-        return self.nombre
-    
-class Cliente(models.Model):
-    nombre = models.CharField(max_length=255)
-    correo = models.EmailField()
-    telefono = models.CharField(max_length=20)
-    direccion = models.CharField(max_length=255)
-    nit = models.CharField(max_length=20, blank=True, null=True)  # Campo NIT agregado
-
-    def __str__(self):
-        return f"{self.nombre} - NIT: {self.nit}" if self.nit else self.nombre
     
     
 class VentaCredito(models.Model):

@@ -13,8 +13,8 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('listar/', views.listar, name='listar'),
     path('pagos/', views.pagos, name='pagos'),
-    path('contado/', views.contado, name='contado'),
-    path('credito/', views.credito, name='credito'),
+    path('venta_contado/', views.venta_contado, name='venta_contado'),
+    path('venta_credito/', views.venta_credito, name='venta_credito'),
     path('alertas/', views.alertas, name='alertas'),
     path('productos/', views.productos, name='productos'),
     path('AgregarProducto/', views.agregarProducto, name='AgregarProducto'),
@@ -23,8 +23,7 @@ urlpatterns = [
     path('marcas/', MarcaListCreate.as_view(), name='marcas'),
     path('marcas/agregar/', views.agregar_marca, name='agregar_marca'),
     path('colores/', ColorListCreate.as_view(), name='colores'),
-    path('colores/agregar/', views.agregar_color, name='agregar_color'),
-    
+    path('colores/agregar/', views.agregar_color, name='agregar_color'),  
     path('descargar_comprobante/<int:venta_id>/', descargar_comprobante_pdf, name='descargar_comprobante'),
     
 ]

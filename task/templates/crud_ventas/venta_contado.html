@@ -1,0 +1,198 @@
+{% extends 'index_master.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="right_col" role="main">
+    <h1>Vender al contado</h1>
+
+    <form action="{% url 'venta_contado' %}" method="POST">
+        {% csrf_token %}
+        
+        <!-- Detalles de Venta -->
+        <h2>Detalles de Venta</h2>
+        {{ formset.management_form }}
+        {% for form in formset %}
+            <div class="producto-form">
+                <div class="form-group">
+                    <!-- Este es el campo de producto_busqueda que renderiza Django -->
+                    {{ form.producto_busqueda }}
+                </div>
+                <div class="resultados-busqueda"></div>
+
+                <!-- Campos ocultos para mantener el producto seleccionado -->
+                {{ form.producto }}
+
+                <div class="producto-info">
+                    <p><strong>Precio del Producto:</strong> <span class="precio"></span></p>
+                    <p><strong>Color del Producto:</strong> <span class="color"></span></p>
+                    <p><strong>Stock Disponible:</strong> <span class="stock"></span></p> 
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- Nueva sección estilizada de Información de la Venta -->
+        <div class="card mb-3 shadow-sm">
+            <div class="card-header">
+                <h2>Información de la Venta</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Primera columna -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.descripcion.label_tag }}
+                            <input type="{{ form.descripcion.field.widget.input_type }}" class="form-control" name="{{ form.descripcion.name }}" value="{{ form.descripcion.value }}">
+                        </div>
+                        <div class="form-group">
+                            {{ form.fecha_venta.label_tag }}
+                            {{ form.fecha_venta|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.tipo_venta.label_tag }}
+                            {{ form.tipo_venta|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ formset.management_form }}
+                            {% for form in formset %}
+                                <label for="{{ form.cantidad.id_for_label }}">Cantidad</label>
+                                {{ form.cantidad|add_class:"form-control" }}
+                            {% endfor %}
+                        </div>
+                        
+                    </div>
+                    <!-- Segunda columna -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.tienda.label_tag }}
+                            {{ form.tienda|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.vendedor.label_tag }}
+                            {{ form.vendedor|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.cliente.label_tag }}
+                            {{ form.cliente|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            <!-- Total, seteado y no editable -->
+                            {{ form.total.label_tag }}
+                            <input type="number" id="total" name="{{ form.total.name }}" value="0" class="form-control" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+</div>
+
+<!-- JavaScript para manejar la búsqueda y actualización de cantidad y total -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Manejar la búsqueda de productos
+        $('.producto-buscador').attr('autocomplete', 'off').keyup(function() {
+            var query = $(this).val();
+            var form = $(this).closest('div.producto-form');
+
+            if (query.length > 2) {
+                $.ajax({
+                    url: '{% url "buscar_producto" %}',  // URL para buscar productos
+                    data: {
+                        'query': query
+                    },
+                    success: function(data) {
+                        var resultados = data.resultados;
+                        var html = '<ul class="list-group">';
+                        resultados.forEach(function(producto) {
+                            html += '<li class="list-group-item producto-item" data-id="' + producto.id + '" data-nombre="' + producto.nombre + '" data-precio="' + producto.precio + '" data-color="' + producto.color + '" data-stock="' + producto.stock + '">' + producto.nombre + ' (' + producto.color + ') - $' + producto.precio + ' - Stock: ' + producto.stock + '</li>';
+                        });
+                        html += '</ul>';
+                        form.find('.resultados-busqueda').html(html);
+                    }
+                });
+            } else {
+                form.find('.resultados-busqueda').html('');
+            }
+        });
+
+        // Cuando el usuario selecciona un producto de la lista
+        $(document).on('click', '.producto-item', function() {
+            var productoNombre = $(this).data('nombre');
+            var productoId = $(this).data('id');
+            var productoPrecio = $(this).data('precio');
+            var productoColor = $(this).data('color');
+            var productoStock = $(this).data('stock');  // Obtener el stock disponible
+            var form = $(this).closest('div.producto-form');
+
+            // Asignar el nombre del producto al campo visible de búsqueda
+            form.find('.producto-buscador').val(productoNombre);
+
+            // Actualizar los detalles de precio, color y stock
+            form.find('.precio').text(productoPrecio);
+            form.find('.color').text(productoColor);
+            form.find('.stock').text(productoStock);  // Mostrar el stock disponible
+
+            // Asignar el ID del producto al campo oculto del formulario
+            form.find('input[name$="-producto"]').val(productoId);
+
+            // Actualizar el total con el precio del producto y cantidad fija de 1
+            $('#total').val(productoPrecio);
+
+            // Limpiar los resultados de búsqueda
+            form.find('.resultados-busqueda').html('');
+        });
+    });
+</script>
+
+<!-- Estilos personalizados -->
+<style>
+    .producto-buscador {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    .producto-form {
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        background: #f9f9f9;
+    }
+
+    .producto-info {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f1f1f1;
+        border-radius: 5px;
+    }
+
+    .list-group-item {
+        cursor: pointer;
+    }
+
+    .list-group-item:hover {
+        background-color: #e9ecef;
+    }
+
+    .card {
+        margin-bottom: 20px;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+</style>
+{% endblock %}

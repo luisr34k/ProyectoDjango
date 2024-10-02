@@ -16,7 +16,7 @@ from django.http import JsonResponse
 from rest_framework import generics
 
 # Local app imports
-from .forms import CrearVentaForm, DetalleVentaFormSet, AgregarProductoForm, MarcaForm, ColorForm
+from .forms import CrearVentaForm, DetalleVentaFormSet, AgregarProductoForm, MarcaForm, ColorForm, CrearVentaCreditoForm, DetalleVentaFormSetCredito
 from .models import Comprobante, Venta, Producto, Marca, Color
 from .serializers import MarcaSerializer, ColorSerializer
 
@@ -128,9 +128,8 @@ def pagos(request):
 def marcas(request):
     return render (request, 'elementos/marcas.html') 
 
-
 @login_required
-def contado(request):
+def venta_contado(request):
     if request.method == 'POST':
         print("Formulario enviado correctamente")  # Verifica que el POST se está ejecutando
         form = CrearVentaForm(request.POST)
@@ -151,10 +150,13 @@ def contado(request):
                     )
                     comprobante.save()
 
+                    # Guardar la venta con el tipo de venta 'Contado'
                     venta = form.save(commit=False)
                     venta.comprobante = comprobante
+                    venta.tipo_venta = 'Contado'  # Establecer el tipo de venta a 'Contado'
                     venta.save()
 
+                    # Guardar los detalles de la venta
                     detalles = formset.save(commit=False)
                     for detalle in detalles:
                         detalle.venta = venta
@@ -170,7 +172,7 @@ def contado(request):
                         
                         detalle.save()
 
-                # Si todo fue bien, redirigir a la página de contado
+                # Si todo fue bien, redirigir a la página de listado
                 return redirect('listar')
 
             except Exception as e:
@@ -182,14 +184,96 @@ def contado(request):
             print(form.errors)  # Muestra los errores del formulario principal
             print(formset.errors)  # Muestra los errores del formset
     else:
-        form = CrearVentaForm()
+        # Inicializar el formulario con tipo_venta='Contado'
+        form = CrearVentaForm(initial={'tipo_venta': 'Contado'})  # Asegurar que tipo_venta es 'Contado'
         formset = DetalleVentaFormSet()
     
-    return render(request, 'crud_ventas/contado.html', {
+    return render(request, 'crud_ventas/venta_contado.html', {
         'form': form,
         'formset': formset
     })
 
+@login_required
+def venta_credito(request):
+    if request.method == 'POST':
+        form_venta = CrearVentaForm(request.POST)
+        form_credito = CrearVentaCreditoForm(request.POST)
+        formset = DetalleVentaFormSetCredito(request.POST)
+
+        # Obtener el nuevo total calculado desde el formulario
+        nuevo_total = request.POST.get('nuevo_total_input')
+
+        # Imprimir en consola si los formularios son válidos o no
+        print("Formulario Venta válido:", form_venta.is_valid())
+        print("Formulario VentaCredito válido:", form_credito.is_valid())
+        print("Formulario DetalleVentaFormSet válido:", formset.is_valid())
+        print("Nuevo Total:", nuevo_total)  # Imprimir el nuevo total en consola para verificar
+
+        if form_venta.is_valid() and form_credito.is_valid() and formset.is_valid():
+            try:
+                with transaction.atomic():
+                    # Generar número de comprobante
+                    comprobante_number = generate_comprobante_number()
+
+                    # Crear y guardar el comprobante
+                    comprobante = Comprobante(
+                        nombre='Comprobante de Venta a Crédito',
+                        tipo_comprobante='Venta Crédito',
+                        numero_comprobante=comprobante_number,
+                        fecha_emision=timezone.now()
+                    )
+                    comprobante.save()
+
+                    # Guardar la venta con el tipo de venta 'Crédito'
+                    venta = form_venta.save(commit=False)
+                    venta.comprobante = comprobante
+                    venta.tipo_venta = 'Crédito'  # Establecer el tipo de venta
+                    venta.total = nuevo_total  # Asignar el nuevo total calculado
+                    venta.save()
+
+                    # Guardar los detalles de la venta
+                    detalles = formset.save(commit=False)
+                    for detalle in detalles:
+                        detalle.venta = venta
+                        producto = detalle.producto
+                        if producto.stock >= detalle.cantidad:
+                            producto.stock -= detalle.cantidad
+                            producto.save()
+                        else:
+                            raise ValueError(f"Stock insuficiente para el producto: {producto.nombre}")
+                        detalle.save()
+
+                    # Guardar la información del crédito
+                    venta_credito = form_credito.save(commit=False)
+                    venta_credito.venta = venta
+                    venta_credito.saldo_restante = venta_credito.monto_inicial
+                    venta_credito.save()
+
+                return redirect('listar')
+
+            except Exception as e:
+                form_venta.add_error(None, str(e))
+                # Imprimir el error en la consola
+                print(f"Error al guardar los datos: {e}")
+        else:
+            # Si los formularios no son válidos, imprimir los errores
+            print("Errores en el formulario de Venta:", form_venta.errors)
+            print("Errores en el formulario de VentaCredito:", form_credito.errors)
+            print("Errores en el Formset de DetalleVenta:", formset.errors)
+
+    else:
+        # Inicializar el formulario de venta con tipo_venta='Crédito'
+        form_venta = CrearVentaForm(initial={'tipo_venta': 'Crédito'})
+        form_credito = CrearVentaCreditoForm()
+        formset = DetalleVentaFormSetCredito()
+
+    return render(request, 'crud_ventas/venta_credito.html', {
+        'form_venta': form_venta,
+        'form_credito': form_credito,
+        'formset': formset,
+    })
+
+   
 class MarcaListCreate(generics.ListCreateAPIView):
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer

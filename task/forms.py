@@ -1,7 +1,7 @@
 #forms.py
 from django.forms import ModelForm, inlineformset_factory
 from django import forms
-from .models import Venta, DetalleVenta, Producto, Marca, Color
+from .models import Venta, DetalleVenta, Producto, Marca, Color, VentaCredito
 
 class MarcaForm(forms.ModelForm):
     class Meta:
@@ -53,9 +53,23 @@ class CrearVentaForm(forms.ModelForm):
         fields = ['descripcion', 'fecha_venta', 'tipo_venta', 'total', 'tienda', 'vendedor', 'cliente']
         widgets = {
             'fecha_venta': forms.DateInput(attrs={'type': 'date'}),
-            'tipo_venta': forms.TextInput(attrs={'value': 'Contado', 'readonly': True}),
+            'tipo_venta': forms.TextInput(attrs={'readonly': True}),  # Solo mantiene 'readonly', sin valor predeterminado
         }
 
+
+
+class CrearVentaCreditoForm(forms.ModelForm):
+    class Meta:
+        model = VentaCredito
+        fields = ['monto_inicial', 'numero_cuotas', 'interes', 'fecha_limite', 'saldo_restante']
+        widgets = {
+            'numero_cuotas': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_numero_cuotas'}),
+            'interes': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_interes', 'value': 5}),
+            'monto_inicial': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_monto_inicial', 'readonly': True}),
+            'saldo_restante': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_saldo_restante', 'readonly': True}),
+            'fecha_limite': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        }
+DetalleVentaFormSetCredito = inlineformset_factory(Venta, DetalleVenta, form=DetalleVentaForm, extra=1)
 
 DetalleVentaFormSet = inlineformset_factory(Venta, DetalleVenta, form=DetalleVentaForm, extra=1)
 

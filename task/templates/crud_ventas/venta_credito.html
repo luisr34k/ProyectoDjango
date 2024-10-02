@@ -3,11 +3,11 @@
 
 {% block content %}
 <div class="right_col" role="main">
-    <h1>Vender al contado</h1>
+    <h1>Vender a Crédito</h1>
 
-    <form action="/contado/" method="POST">
+    <form action="{% url 'venta_credito' %}" method="POST">
         {% csrf_token %}
-        
+
         <!-- Detalles de Venta -->
         <h2>Detalles de Venta</h2>
         {{ formset.management_form }}
@@ -40,16 +40,16 @@
                     <!-- Primera columna -->
                     <div class="col-md-6">
                         <div class="form-group">
-                            {{ form.descripcion.label_tag }}
-                            <input type="{{ form.descripcion.field.widget.input_type }}" class="form-control" name="{{ form.descripcion.name }}" value="{{ form.descripcion.value }}">
+                            {{ form_venta.descripcion.label_tag }}
+                            <input type="{{ form_venta.descripcion.field.widget.input_type }}" class="form-control" name="{{ form_venta.descripcion.name }}" value="{{ form_venta.descripcion.value }}">
                         </div>
                         <div class="form-group">
-                            {{ form.fecha_venta.label_tag }}
-                            {{ form.fecha_venta|add_class:"form-control" }}
+                            {{ form_venta.fecha_venta.label_tag }}
+                            {{ form_venta.fecha_venta|add_class:"form-control" }}
                         </div>
                         <div class="form-group">
-                            {{ form.tipo_venta.label_tag }}
-                            {{ form.tipo_venta|add_class:"form-control" }}
+                            {{ form_venta.tipo_venta.label_tag }}
+                            {{ form_venta.tipo_venta|add_class:"form-control" }}
                         </div>
                         <div class="form-group">
                             {{ formset.management_form }}
@@ -63,22 +63,62 @@
                     <!-- Segunda columna -->
                     <div class="col-md-6">
                         <div class="form-group">
-                            {{ form.tienda.label_tag }}
-                            {{ form.tienda|add_class:"form-control" }}
+                            {{ form_venta.tienda.label_tag }}
+                            {{ form_venta.tienda|add_class:"form-control" }}
                         </div>
                         <div class="form-group">
-                            {{ form.vendedor.label_tag }}
-                            {{ form.vendedor|add_class:"form-control" }}
+                            {{ form_venta.vendedor.label_tag }}
+                            {{ form_venta.vendedor|add_class:"form-control" }}
                         </div>
                         <div class="form-group">
-                            {{ form.cliente.label_tag }}
-                            {{ form.cliente|add_class:"form-control" }}
+                            {{ form_venta.cliente.label_tag }}
+                            {{ form_venta.cliente|add_class:"form-control" }}
                         </div>
                         <div class="form-group">
                             <!-- Total, seteado y no editable -->
-                            {{ form.total.label_tag }}
-                            <input type="number" id="total" name="{{ form.total.name }}" value="0" class="form-control" readonly>
+                            {{ form_venta.total.label_tag }}
+                            <input type="number" id="total" name="{{ form_venta.total.name }}" value="0" class="form-control" readonly>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección para la Información de Crédito -->
+        <div class="card mb-3 shadow-sm">
+            <div class="card-header">
+                <h2>Información de Crédito</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_credito.numero_cuotas.label_tag }}
+                            {{ form_credito.numero_cuotas|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_credito.interes.label_tag }}
+                            {{ form_credito.interes|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_credito.monto_inicial.label_tag }}
+                            {{ form_credito.monto_inicial|add_class:"form-control" }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_credito.fecha_limite.label_tag }}
+                            {{ form_credito.fecha_limite|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_credito.saldo_restante.label_tag }}
+                            {{ form_credito.saldo_restante|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            <label for="nuevo_total">Nuevo Total</label>
+                            <input type="number" id="nuevo_total" class="form-control" readonly>
+                        </div>
+                        <input type="hidden" id="nuevo_total_input" name="nuevo_total_input" value="">
                     </div>
                 </div>
             </div>
@@ -145,7 +185,41 @@
             form.find('.resultados-busqueda').html('');
         });
     });
+
+    $(document).ready(function() {
+    // Función para calcular el crédito
+    function calcularCredito() {
+        // Obtener el total del producto (precio)
+        var total = parseFloat($('#total').val()) || 0;
+        var numeroCuotas = parseInt($('#id_numero_cuotas').val()) || 0;
+        var interes = parseFloat($('#id_interes').val()) || 5;  // El interés será 5% por defecto, pero editable
+        var montoInicial = total * 0.2;  // Puedes cambiar este cálculo si el monto inicial tiene otras reglas
+
+        if (numeroCuotas > 0 && interes > 0) {
+            // Calcular el saldo restante aplicando interés
+            var saldoRestante = (total - montoInicial) * Math.pow(1 + (interes / 100), numeroCuotas);
+            var nuevoTotal = saldoRestante + montoInicial;  // El nuevo total será el saldo restante más el monto inicial
+            
+            // Mostrar los resultados en los campos correspondientes
+            $('#id_monto_inicial').val(montoInicial.toFixed(2));
+            $('#id_saldo_restante').val(saldoRestante.toFixed(2));
+            $('#nuevo_total').val(nuevoTotal.toFixed(2));  // Actualiza el nuevo total visible
+            $('#nuevo_total_input').val(nuevoTotal.toFixed(2));  // Actualiza el campo oculto para enviar
+        }
+    }
+
+    // Llamar a la función calcularCredito cuando cambien los valores de cuotas o interés
+    $('#id_numero_cuotas, #id_interes').on('input', function() {
+        calcularCredito();
+    });
+
+    // Asegurarse de calcular el crédito al cargar la página si ya hay valores
+    calcularCredito();
+});
+
 </script>
+
+
 
 <!-- Estilos personalizados -->
 <style>
