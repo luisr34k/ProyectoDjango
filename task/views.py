@@ -17,7 +17,7 @@ from rest_framework import generics
 
 # Local app imports
 from .forms import CrearVentaForm, DetalleVentaFormSet, AgregarProductoForm, MarcaForm, ColorForm, CrearVentaCreditoForm, DetalleVentaFormSetCredito
-from .models import Comprobante, Venta, Producto, Marca, Color
+from .models import Comprobante, Venta, Producto, Marca, Color, VentaCredito
 from .serializers import MarcaSerializer, ColorSerializer
 
 
@@ -246,7 +246,7 @@ def venta_credito(request):
                     # Guardar la información del crédito
                     venta_credito = form_credito.save(commit=False)
                     venta_credito.venta = venta
-                    venta_credito.saldo_restante = venta_credito.monto_inicial
+                    venta_credito.saldo_restante = float(nuevo_total) - float(venta_credito.monto_inicial)
                     venta_credito.save()
 
                 return redirect('listar')
@@ -273,7 +273,15 @@ def venta_credito(request):
         'formset': formset,
     })
 
-   
+@login_required
+def pendiente_pago(request):
+    # Obtener todas las ventas que aún tienen saldo pendiente
+    ventas_pendientes = VentaCredito.objects.filter(saldo_restante__gt=0)
+    
+    return render(request, 'crud_ventas/pendiente_pago.html', {
+        'ventas_pendientes': ventas_pendientes
+    })
+  
 class MarcaListCreate(generics.ListCreateAPIView):
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer

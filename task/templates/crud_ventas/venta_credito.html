@@ -187,24 +187,31 @@
     });
 
     $(document).ready(function() {
-    // Función para calcular el crédito
+    // Función para calcular el crédito con interés simple
     function calcularCredito() {
         // Obtener el total del producto (precio)
         var total = parseFloat($('#total').val()) || 0;
         var numeroCuotas = parseInt($('#id_numero_cuotas').val()) || 0;
         var interes = parseFloat($('#id_interes').val()) || 5;  // El interés será 5% por defecto, pero editable
-        var montoInicial = total * 0.2;  // Puedes cambiar este cálculo si el monto inicial tiene otras reglas
 
         if (numeroCuotas > 0 && interes > 0) {
-            // Calcular el saldo restante aplicando interés
-            var saldoRestante = (total - montoInicial) * Math.pow(1 + (interes / 100), numeroCuotas);
-            var nuevoTotal = saldoRestante + montoInicial;  // El nuevo total será el saldo restante más el monto inicial
+            // Cálculo del interés simple: Interés = Capital * Tasa de Interés * Tiempo
+            var interesTotal = total * (interes / 100) * numeroCuotas;
             
+            // Calcular el nuevo total con intereses
+            var totalConInteres = total + interesTotal;
+
+            // Calcular el monto inicial como el precio ya con intereses dividido entre el número de cuotas
+            var montoInicial = totalConInteres / numeroCuotas;
+
+            // El saldo restante será el total con intereses menos el monto inicial
+            var saldoRestante = totalConInteres - montoInicial;
+
             // Mostrar los resultados en los campos correspondientes
             $('#id_monto_inicial').val(montoInicial.toFixed(2));
             $('#id_saldo_restante').val(saldoRestante.toFixed(2));
-            $('#nuevo_total').val(nuevoTotal.toFixed(2));  // Actualiza el nuevo total visible
-            $('#nuevo_total_input').val(nuevoTotal.toFixed(2));  // Actualiza el campo oculto para enviar
+            $('#nuevo_total').val(totalConInteres.toFixed(2));  // Actualiza el nuevo total visible
+            $('#nuevo_total_input').val(totalConInteres.toFixed(2));  // Actualiza el campo oculto para enviar
         }
     }
 
@@ -216,6 +223,8 @@
     // Asegurarse de calcular el crédito al cargar la página si ya hay valores
     calcularCredito();
 });
+
+
 
 </script>
 
