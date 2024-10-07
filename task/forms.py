@@ -18,6 +18,7 @@ class ColorForm(forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del color'}),
         }
+
 class AgregarProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
