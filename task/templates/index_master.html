@@ -141,8 +141,8 @@
 
                 <li role="presentation" class="nav-item dropdown open">
                   <a href="javascript:;" class="dropdown-toggle info-number" id="navbarDropdown1" data-toggle="dropdown" aria-expanded="false">
-                    <i class="fa fa-envelope-o"></i>
-                    <span class="badge bg-green">6</span>
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge bg-green">5</span>
                   </a>
                   <ul class="dropdown-menu list-unstyled msg_list" role="menu" aria-labelledby="navbarDropdown1">
                     <li class="nav-item">
@@ -270,6 +270,61 @@
 
     <!-- Custom Theme Scripts -->
     <script src="{% static '/FrWork/admin_lte/build/js/custom.min.js' %}"></script>
+
+    <script>
+      
+      document.addEventListener('DOMContentLoaded', function() {
+    function cargarNotificaciones() {
+        fetch('/obtener_notificaciones/')
+            .then(response => response.json())
+            .then(data => {
+                let notificationsMenu = document.querySelector('.msg_list');
+                notificationsMenu.innerHTML = '';  // Limpia las notificaciones anteriores
+
+                data.notificaciones.forEach(notification => {
+                    let li = document.createElement('li');
+                    li.classList.add('nav-item');
+                    let badgeClass = notification.tipo === 'urgente' ? 'badge bg-red' : 'badge bg-yellow';
+                    
+                    li.innerHTML = `
+                        <a class="dropdown-item">
+                            <span class="badge ${badgeClass}">${notification.tipo.toUpperCase()}</span>
+                            <span class="message">${notification.mensaje}</span>
+                        </a>
+                    `;
+                    
+                    notificationsMenu.appendChild(li);
+                });
+
+                // Actualiza el número total de notificaciones
+                let notificationCount = document.querySelector('.info-number .badge');
+                notificationCount.textContent = data.total_notificaciones;
+
+                // Agrega enlace para ver todas las notificaciones si hay más
+                if (data.hay_mas) {
+                    let verMasLi = document.createElement('li');
+                    verMasLi.classList.add('nav-item');
+                    verMasLi.innerHTML = `
+                        <div class="text-center">
+                            <a href="/alertas">
+                                <strong>Ver todas las notificaciones</strong>
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        </div>
+                    `;
+                    notificationsMenu.appendChild(verMasLi);
+                }
+            })
+            .catch(error => console.error('Error fetching notifications:', error));
+    }
+
+    // Cargar notificaciones al cargar la página
+    cargarNotificaciones();
+});
+
+
+    </script>
+  
 	
   </body>
 </html>

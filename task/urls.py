@@ -26,5 +26,7 @@ urlpatterns = [
     path('colores/', ColorListCreate.as_view(), name='colores'),
     path('colores/agregar/', views.agregar_color, name='agregar_color'),  
     path('descargar_comprobante/<int:venta_id>/', descargar_comprobante_pdf, name='descargar_comprobante'),
+    path('obtener_notificaciones/', views.obtener_notificaciones, name='obtener_notificaciones'),
+
     
 ]

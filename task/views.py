@@ -1,5 +1,6 @@
 #views.py
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.core.paginator import Paginator
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 from django.shortcuts import render, redirect, get_object_or_404
@@ -382,3 +383,38 @@ def buscar_producto(request):
         return JsonResponse({'resultados': resultados})
     return JsonResponse({'resultados': []})
 
+def obtener_notificaciones(request):
+    # Productos con stock crítico
+    stock_urgente = Producto.objects.filter(stock=0)
+    stock_alerta = Producto.objects.filter(stock=3)
+    
+    notificaciones = []
+    
+    # Agrega notificación de stock urgente
+    for producto in stock_urgente:
+        notificaciones.append({
+            'mensaje': f'El producto {producto.nombre} está agotado.',
+            'tipo': 'urgente'
+        })
+
+    # Agrega notificación de stock bajo
+    for producto in stock_alerta:
+        notificaciones.append({
+            'mensaje': f'El producto {producto.nombre} tiene un stock bajo.',
+            'tipo': 'alerta'
+        })
+    
+    # Limita las notificaciones a mostrar
+    max_notificaciones = 7
+    notificaciones_limitadas = notificaciones[:max_notificaciones]
+    
+    # Comprueba si hay más notificaciones que las mostradas
+    hay_mas_notificaciones = len(notificaciones) > max_notificaciones
+
+    response_data = {
+        'notificaciones': notificaciones_limitadas,
+        'hay_mas': hay_mas_notificaciones,
+        'total_notificaciones': len(notificaciones)  # Devuelve el total real de notificaciones
+    }
+
+    return JsonResponse(response_data, safe=False)
