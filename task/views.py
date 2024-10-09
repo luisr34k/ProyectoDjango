@@ -405,3 +405,29 @@ def obtener_notificaciones(request):
     }
 
     return JsonResponse(response_data, safe=False)
+
+
+def alertas(request):
+    # Obtener todas las notificaciones sin límite
+    stock_urgente = Producto.objects.filter(stock=0)
+    stock_alerta = Producto.objects.filter(stock__lte=3, stock__gt=0)
+    
+    notificaciones = []
+    
+    for producto in stock_urgente:
+        notificaciones.append({
+            'mensaje': f'El producto {producto.nombre} está agotado.',
+            'tipo': 'urgente'
+        })
+
+    for producto in stock_alerta:
+        notificaciones.append({
+            'mensaje': f'El producto {producto.nombre} tiene un stock bajo.',
+            'tipo': 'alerta'
+        })
+    
+    context = {
+        'notificaciones': notificaciones,
+    }
+    
+    return render(request, 'crud_ventas/alertas.html', context)

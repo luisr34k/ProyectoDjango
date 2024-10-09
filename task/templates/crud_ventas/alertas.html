@@ -1,13 +1,23 @@
-<!-- templates/crud_ventas/listar.html -->
+<!-- alertas.html -->
 {% extends 'index_master.html' %}
 
 {% block content %}
 
-<div class="right_col" role="main">
-
-    <h1>Aqui estan las alertas</h1>
-
-</div>
-
-<!-- Aquí va el contenido específico de la vista "listar" -->
+<div class="right_col" role="main">   
+    <div class="container mt-4">
+        <h2>Todas las Notificaciones</h2>
+        <ul class="list-group">
+            {% for notificacion in notificaciones %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="badge {% if notificacion.tipo == 'urgente' %}bg-danger{% else %}bg-warning{% endif %}">
+                        {{ notificacion.tipo|title }}
+                    </span>
+                    <span class="message">{{ notificacion.mensaje }}</span>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-center">No hay notificaciones</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>    
 {% endblock %}

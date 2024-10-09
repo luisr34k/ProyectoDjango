@@ -55,6 +55,8 @@ MIDDLEWARE = [
 
 
 
+
+
 ROOT_URLCONF = 'djangocrud.urls'
 
 TEMPLATES = [

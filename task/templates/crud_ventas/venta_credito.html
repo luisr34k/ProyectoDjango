@@ -146,9 +146,9 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         // Manejar la búsqueda de productos
-        $('.producto-buscador').attr('autocomplete', 'off').keyup(function() {
+        $('.producto-buscador').attr('autocomplete', 'off').keyup(function () {
             var query = $(this).val();
             var form = $(this).closest('div.producto-form');
 
@@ -158,10 +158,10 @@
                     data: {
                         'query': query
                     },
-                    success: function(data) {
+                    success: function (data) {
                         var resultados = data.resultados;
                         var html = '<ul class="list-group">';
-                        resultados.forEach(function(producto) {
+                        resultados.forEach(function (producto) {
                             html += '<li class="list-group-item producto-item" data-id="' + producto.id + '" data-nombre="' + producto.nombre + '" data-precio="' + producto.precio + '" data-color="' + producto.color + '" data-stock="' + producto.stock + '">' + producto.nombre + ' (' + producto.color + ') - $' + producto.precio + ' - Stock: ' + producto.stock + '</li>';
                         });
                         html += '</ul>';
@@ -174,7 +174,7 @@
         });
 
         // Cuando el usuario selecciona un producto de la lista
-    $(document).on('click', '.producto-item', function() {
+        $(document).on('click', '.producto-item', function () {
             var productoNombre = $(this).data('nombre');
             var productoId = $(this).data('id');
             var productoPrecio = $(this).data('precio');
@@ -201,54 +201,54 @@
         });
     });
 
-    $(document).ready(function() {
-    // Función para calcular el crédito con interés simple
-    function calcularCredito() {
-        // Obtener el total del producto (precio)
-        var total = parseFloat($('#total').val()) || 0;
-        var numeroCuotas = parseInt($('#id_numero_cuotas').val()) || 0;
-        var interes = parseFloat($('#id_interes').val()) || 5;  // El interés será 5% por defecto, pero editable
+    $(document).ready(function () {
+        // Función para calcular el crédito con interés simple
+        function calcularCredito() {
+            // Obtener el total del producto (precio)
+            var total = parseFloat($('#total').val()) || 0;
+            var numeroCuotas = parseInt($('#id_numero_cuotas').val()) || 0;
+            var interes = parseFloat($('#id_interes').val()) || 5;  // El interés será 5% por defecto, pero editable
 
-        if (numeroCuotas > 0 && interes > 0) {
-            // Cálculo del interés simple: Interés = Capital * Tasa de Interés * Tiempo
-            var interesTotal = total * (interes / 100) * numeroCuotas;
-            
-            // Calcular el nuevo total con intereses
-            var totalConInteres = total + interesTotal;
+            if (numeroCuotas > 0 && interes > 0) {
+                // Cálculo del interés simple: Interés = Capital * Tasa de Interés * Tiempo
+                var interesTotal = total * (interes / 100) * numeroCuotas;
 
-            // Calcular el monto inicial como el precio ya con intereses dividido entre el número de cuotas
-            var montoInicial = totalConInteres / numeroCuotas;
+                // Calcular el nuevo total con intereses
+                var totalConInteres = total + interesTotal;
 
-            // El saldo restante será el total con intereses menos el monto inicial
-            var saldoRestante = totalConInteres - montoInicial;
+                // Calcular el monto inicial como el precio ya con intereses dividido entre el número de cuotas
+                var montoInicial = totalConInteres / numeroCuotas;
 
-            // Mostrar los resultados en los campos correspondientes
-            $('#id_monto_inicial').val(montoInicial.toFixed(2));
-            $('#id_saldo_restante').val(saldoRestante.toFixed(2));
-            $('#nuevo_total').val(totalConInteres.toFixed(2));  // Actualiza el nuevo total visible
-            $('#nuevo_total_input').val(totalConInteres.toFixed(2));  // Actualiza el campo oculto para enviar
+                // El saldo restante será el total con intereses menos el monto inicial
+                var saldoRestante = totalConInteres - montoInicial;
+
+                // Mostrar los resultados en los campos correspondientes
+                $('#id_monto_inicial').val(montoInicial.toFixed(2));
+                $('#id_saldo_restante').val(saldoRestante.toFixed(2));
+                $('#nuevo_total').val(totalConInteres.toFixed(2));  // Actualiza el nuevo total visible
+                $('#nuevo_total_input').val(totalConInteres.toFixed(2));  // Actualiza el campo oculto para enviar
+            }
         }
-    }
 
-    // Llamar a la función calcularCredito cuando cambien los valores de cuotas o interés
-    $('#id_numero_cuotas, #id_interes').on('input', function() {
+        // Llamar a la función calcularCredito cuando cambien los valores de cuotas o interés
+        $('#id_numero_cuotas, #id_interes').on('input', function () {
+            calcularCredito();
+        });
+
+        // Asegurarse de calcular el crédito al cargar la página si ya hay valores
         calcularCredito();
     });
 
-    // Asegurarse de calcular el crédito al cargar la página si ya hay valores
-    calcularCredito();
-});
-
-$(document).ready(function() {
+    $(document).ready(function () {
         // Función para calcular la fecha límite
         function calcularFechaLimite() {
             let fechaVenta = new Date($('#id_fecha_venta').val());
             let numeroCuotas = parseInt($('#id_numero_cuotas').val());
             let frecuenciaPago = $('#id_frecuencia_pago').val();
-            
+
             if (!isNaN(numeroCuotas) && fechaVenta && frecuenciaPago) {
                 let fechaLimite = new Date(fechaVenta);
-                
+
                 // Ajusta la fecha según la frecuencia de pago
                 if (frecuenciaPago === 'semanal') {
                     fechaLimite.setDate(fechaLimite.getDate() + (numeroCuotas * 7));
@@ -257,7 +257,7 @@ $(document).ready(function() {
                 } else if (frecuenciaPago === 'mensual') {
                     fechaLimite.setMonth(fechaLimite.getMonth() + numeroCuotas);
                 }
-                
+
                 // Formatear la fecha como YYYY-MM-DD
                 let fechaLimiteFormateada = fechaLimite.toISOString().split('T')[0];
                 $('#id_fecha_limite').val(fechaLimiteFormateada);
@@ -265,14 +265,13 @@ $(document).ready(function() {
         }
 
         // Ejecuta la función al cambiar los valores de los campos
-        $('#id_fecha_venta, #id_numero_cuotas, #id_frecuencia_pago').on('input change', function() {
+        $('#id_fecha_venta, #id_numero_cuotas, #id_frecuencia_pago').on('input change', function () {
             calcularFechaLimite();
         });
 
         // Inicializa el cálculo al cargar la página
         calcularFechaLimite();
     });
-
 
 
 </script>

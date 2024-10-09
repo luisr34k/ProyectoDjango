@@ -112,99 +112,47 @@
         </div>
 
         <!-- top navigation -->
-        <div class="top_nav">
-          <div class="nav_menu">
-              <div class="nav toggle">
-                <a id="menu_toggle"><i class="fa fa-bars"></i></a>
-              </div>
-              <nav class="nav navbar-nav">
-              <ul class=" navbar-right">
-                <li class="nav-item dropdown open" style="padding-left: 15px;">
-                  <a href="javascript:;" class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown" data-toggle="dropdown" aria-expanded="false">
-                    <i class="fa-solid fa-user"></i> John Doe
-                 </a>
-                
-                  <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item"  href="javascript:;"> Perfil</a>
-                      <a class="dropdown-item"  href="/signup">
-                        
-                        <span>Nuevo usuario</span>
-                      </a>
-                  
-                      <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
-
-                  </div>
-                </li>
-
-                <li role="presentation" class="nav-item dropdown open">
-                  <a href="javascript:;" class="dropdown-toggle info-number" id="navbarDropdown1" data-toggle="dropdown" aria-expanded="false">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="badge bg-green">5</span>
-                  </a>
-                  <ul class="dropdown-menu list-unstyled msg_list" role="menu" aria-labelledby="navbarDropdown1">
-                    <li class="nav-item">
-                      <a class="dropdown-item">
-                        <span class="image"><img src="images/img.jpg" alt="Profile Image" /></span>
-                        <span>
-                          <span>John Smith</span>
-                          <span class="time">3 mins ago</span>
-                        </span>
-                        <span class="message">
-                          Film festivals used to be do-or-die moments for movie makers. They were where...
-                        </span>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="dropdown-item">
-                        <span class="image"><img src="images/img.jpg" alt="Profile Image" /></span>
-                        <span>
-                          <span>John Smith</span>
-                          <span class="time">3 mins ago</span>
-                        </span>
-                        <span class="message">
-                          Film festivals used to be do-or-die moments for movie makers. They were where...
-                        </span>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="dropdown-item">
-                        <span class="image"><img src="images/img.jpg" alt="Profile Image" /></span>
-                        <span>
-                          <span>John Smith</span>
-                          <span class="time">3 mins ago</span>
-                        </span>
-                        <span class="message">
-                          Film festivals used to be do-or-die moments for movie makers. They were where...
-                        </span>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="dropdown-item">
-                        <span class="image"><img src="images/img.jpg" alt="Profile Image" /></span>
-                        <span>
-                          <span>John Smith</span>
-                          <span class="time">3 mins ago</span>
-                        </span>
-                        <span class="message">
-                          Film festivals used to be do-or-die moments for movie makers. They were where...
-                        </span>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <div class="text-center">
-                        <a href="/alertas">
-                          <strong>See All Alerts</strong>
-                          <i class="fa fa-angle-right"></i>
-                        </a>
-                      </div>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </nav>
+<div class="top_nav">
+  <div class="nav_menu">
+    <div class="nav toggle">
+      <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+    </div>
+    <nav class="nav navbar-nav">
+      <ul class="navbar-right">
+        <li class="nav-item dropdown open" style="padding-left: 15px;">
+          <a href="javascript:;" class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown" data-toggle="dropdown" aria-expanded="false">
+            <i class="fa-solid fa-user"></i> John Doe
+          </a>
+          <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="javascript:;">Perfil</a>
+            <a class="dropdown-item" href="/signup">
+              <span>Nuevo usuario</span>
+            </a>
+            <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
           </div>
-        </div>
-        <!-- /top navigation -->
+        </li>
+
+        <!-- Notificaciones -->
+        <li role="presentation" class="nav-item dropdown open">
+          <a href="javascript:;" class="dropdown-toggle info-number" id="navbarDropdown1" data-toggle="dropdown" aria-expanded="false">
+            <i class="fa-solid fa-bell"></i>
+            <span class="badge bg-green">0</span> <!-- Conteo dinámico de notificaciones -->
+          </a>
+          <ul class="dropdown-menu list-unstyled msg_list" role="menu" aria-labelledby="navbarDropdown1">
+            <!-- Contenido dinámico de notificaciones -->
+            <!-- Las notificaciones serán insertadas aquí por el script -->
+            <li class="nav-item text-center">
+              <a href="/alertas">
+                <strong>Ver todas las notificaciones</strong>
+                <i class="fa fa-angle-right"></i>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
 
 
 
@@ -267,61 +215,80 @@
 
     <!-- Custom Theme Scripts -->
     <script src="{% static '/FrWork/admin_lte/build/js/custom.min.js' %}"></script>
-
     <script>
-      
-      document.addEventListener('DOMContentLoaded', function() {
-    function cargarNotificaciones() {
-        fetch('/obtener_notificaciones/')
+      document.addEventListener('DOMContentLoaded', function () {
+        function cargarNotificaciones() {
+          fetch('/obtener_notificaciones/')
             .then(response => response.json())
             .then(data => {
-                let notificationsMenu = document.querySelector('.msg_list');
-                notificationsMenu.innerHTML = '';  // Limpia las notificaciones anteriores
-
-                data.notificaciones.forEach(notification => {
-                    let li = document.createElement('li');
-                    li.classList.add('nav-item');
-                    let badgeClass = notification.tipo === 'urgente' ? 'badge bg-red' : 'badge bg-yellow';
-                    
-                    li.innerHTML = `
-                        <a class="dropdown-item">
-                            <span class="badge ${badgeClass}">${notification.tipo.toUpperCase()}</span>
-                            <span class="message">${notification.mensaje}</span>
-                        </a>
-                    `;
-                    
-                    notificationsMenu.appendChild(li);
-                });
-
-                // Actualiza el número total de notificaciones
-                let notificationCount = document.querySelector('.info-number .badge');
-                notificationCount.textContent = data.total_notificaciones;
-
-                // Agrega enlace para ver todas las notificaciones si hay más
-                if (data.hay_mas) {
-                    let verMasLi = document.createElement('li');
-                    verMasLi.classList.add('nav-item');
-                    verMasLi.innerHTML = `
-                        <div class="text-center">
-                            <a href="/alertas">
-                                <strong>Ver todas las notificaciones</strong>
-                                <i class="fa fa-angle-right"></i>
-                            </a>
-                        </div>
-                    `;
-                    notificationsMenu.appendChild(verMasLi);
-                }
+              let notificationsMenu = document.querySelector('.msg_list');
+              notificationsMenu.innerHTML = '';  // Limpia las notificaciones anteriores
+    
+              data.notificaciones.forEach(notification => {
+                let li = document.createElement('li');
+                li.classList.add('nav-item');
+                let badgeClass = notification.tipo === 'urgente' ? 'badge bg-red' : 'badge bg-yellow';
+    
+                li.innerHTML = `
+                  <a class="dropdown-item">
+                    <span class="badge ${badgeClass}">${notification.tipo.toUpperCase()}</span>
+                    <span class="message">${notification.mensaje}</span>
+                  </a>
+                `;
+    
+                notificationsMenu.appendChild(li);
+              });
+    
+              // Actualiza el número total de notificaciones
+              let notificationCount = document.querySelector('.info-number .badge');
+              notificationCount.textContent = data.total_notificaciones;
+    
+              // Agrega enlace para ver todas las notificaciones si hay más
+              if (data.hay_mas) {
+                let verMasLi = document.createElement('li');
+                verMasLi.classList.add('nav-item');
+                verMasLi.innerHTML = `
+                  <div class="text-center">
+                    <a href="/alertas">
+                      <strong>Ver todas las notificaciones</strong>
+                      <i class="fa fa-angle-right"></i>
+                    </a>
+                  </div>
+                `;
+                notificationsMenu.appendChild(verMasLi);
+              }
             })
             .catch(error => console.error('Error fetching notifications:', error));
-    }
-
-    // Cargar notificaciones al cargar la página
-    cargarNotificaciones();
-});
-
-
+        }
+    
+        // Cargar notificaciones al cargar la página
+        cargarNotificaciones();
+      });
     </script>
-  
+    <style>
+      @media (max-width: 768px) {
+        .info-number .badge {
+          font-size: 12px;
+          /* Tamaño del texto del número de notificación */
+          position: absolute;
+          /* Ubicación fija */
+          top: -5px;
+          right: -5px;
+        }
+      }
+    
+      .dropdown-toggle.info-number {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+      }
+    
+      .info-number .badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+      }
+    </style>
 	
   </body>
 </html>
