@@ -373,7 +373,7 @@ def buscar_producto(request):
 def obtener_notificaciones(request):
     # Productos con stock crítico
     stock_urgente = Producto.objects.filter(stock=0)
-    stock_alerta = Producto.objects.filter(stock=3)
+    stock_alerta = Producto.objects.filter(stock__lte=3, stock__gt=0) 
     
     notificaciones = []
     
