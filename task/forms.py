@@ -62,14 +62,18 @@ class CrearVentaForm(forms.ModelForm):
 class CrearVentaCreditoForm(forms.ModelForm):
     class Meta:
         model = VentaCredito
-        fields = ['monto_inicial', 'numero_cuotas', 'interes', 'fecha_limite', 'saldo_restante']
+        fields = ['monto_inicial', 'numero_cuotas', 'interes', 'fecha_limite', 'saldo_restante', 'frecuencia_pago']
         widgets = {
             'numero_cuotas': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_numero_cuotas'}),
             'interes': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_interes', 'value': 5}),
             'monto_inicial': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_monto_inicial', 'readonly': True}),
             'saldo_restante': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_saldo_restante', 'readonly': True}),
             'fecha_limite': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'frecuencia_pago': forms.Select(attrs={'class': 'form-control'})  # Agrega el selector para la frecuencia de pago
         }
+
+        
+        
 DetalleVentaFormSetCredito = inlineformset_factory(Venta, DetalleVenta, form=DetalleVentaForm, extra=1)
 
 DetalleVentaFormSet = inlineformset_factory(Venta, DetalleVenta, form=DetalleVentaForm, extra=1)

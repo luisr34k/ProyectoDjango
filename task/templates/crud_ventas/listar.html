@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="right_col" role="main">
-    <h1>Listado de Ventas</h1>
+    <h1>Reporte de Ventas</h1>
     <div class="table-responsive">
         <table class="table table-striped table-borderless table-sm table-light">
           <thead>
@@ -32,8 +32,10 @@
               <td>{{ v.comprobante.numero_comprobante }}</td>
               <td>{{ v.cliente.nombre }}</td>
               <td>
-                <a href="{% url 'descargar_comprobante' v.id %}" class="btn btn-primary btn-sm">Comprobante</a>
-              </td>
+                <a href="{% url 'descargar_comprobante' v.id %}" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-file-arrow-down me-2"></i> Comprobante
+                </a>
+            </td>
             </tr>
             {% endfor %}
           </tbody>

@@ -92,9 +92,21 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="form-group">
-                            {{ form_credito.numero_cuotas.label_tag }}
-                            {{ form_credito.numero_cuotas|add_class:"form-control" }}
+                        <div class="row">
+                            <!-- Columna para número de cuotas (mitad del ancho de col-md-6) -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_credito.numero_cuotas.label_tag }}
+                                    {{ form_credito.numero_cuotas|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <!-- Columna para frecuencia de pago (mitad del ancho de col-md-6) -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_credito.frecuencia_pago.label_tag }}
+                                    {{ form_credito.frecuencia_pago|add_class:"form-control" }}
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             {{ form_credito.interes.label_tag }}
@@ -122,6 +134,8 @@
                     </div>
                 </div>
             </div>
+            
+            
         </div>
 
         <button type="submit" class="btn btn-primary">Guardar</button>
@@ -131,6 +145,7 @@
 <!-- JavaScript para manejar la búsqueda y actualización de cantidad y total -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
+
     $(document).ready(function() {
         // Manejar la búsqueda de productos
         $('.producto-buscador').attr('autocomplete', 'off').keyup(function() {
@@ -159,7 +174,7 @@
         });
 
         // Cuando el usuario selecciona un producto de la lista
-        $(document).on('click', '.producto-item', function() {
+    $(document).on('click', '.producto-item', function() {
             var productoNombre = $(this).data('nombre');
             var productoId = $(this).data('id');
             var productoPrecio = $(this).data('precio');
@@ -223,6 +238,40 @@
     // Asegurarse de calcular el crédito al cargar la página si ya hay valores
     calcularCredito();
 });
+
+$(document).ready(function() {
+        // Función para calcular la fecha límite
+        function calcularFechaLimite() {
+            let fechaVenta = new Date($('#id_fecha_venta').val());
+            let numeroCuotas = parseInt($('#id_numero_cuotas').val());
+            let frecuenciaPago = $('#id_frecuencia_pago').val();
+            
+            if (!isNaN(numeroCuotas) && fechaVenta && frecuenciaPago) {
+                let fechaLimite = new Date(fechaVenta);
+                
+                // Ajusta la fecha según la frecuencia de pago
+                if (frecuenciaPago === 'semanal') {
+                    fechaLimite.setDate(fechaLimite.getDate() + (numeroCuotas * 7));
+                } else if (frecuenciaPago === 'quincenal') {
+                    fechaLimite.setDate(fechaLimite.getDate() + (numeroCuotas * 14));
+                } else if (frecuenciaPago === 'mensual') {
+                    fechaLimite.setMonth(fechaLimite.getMonth() + numeroCuotas);
+                }
+                
+                // Formatear la fecha como YYYY-MM-DD
+                let fechaLimiteFormateada = fechaLimite.toISOString().split('T')[0];
+                $('#id_fecha_limite').val(fechaLimiteFormateada);
+            }
+        }
+
+        // Ejecuta la función al cambiar los valores de los campos
+        $('#id_fecha_venta, #id_numero_cuotas, #id_frecuencia_pago').on('input change', function() {
+            calcularFechaLimite();
+        });
+
+        // Inicializa el cálculo al cargar la página
+        calcularFechaLimite();
+    });
 
 
 

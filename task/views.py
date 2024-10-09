@@ -204,12 +204,6 @@ def venta_credito(request):
         # Obtener el nuevo total calculado desde el formulario
         nuevo_total = request.POST.get('nuevo_total_input')
 
-        # Imprimir en consola si los formularios son válidos o no
-        print("Formulario Venta válido:", form_venta.is_valid())
-        print("Formulario VentaCredito válido:", form_credito.is_valid())
-        print("Formulario DetalleVentaFormSet válido:", formset.is_valid())
-        print("Nuevo Total:", nuevo_total)  # Imprimir el nuevo total en consola para verificar
-
         if form_venta.is_valid() and form_credito.is_valid() and formset.is_valid():
             try:
                 with transaction.atomic():
@@ -228,7 +222,7 @@ def venta_credito(request):
                     # Guardar la venta con el tipo de venta 'Crédito'
                     venta = form_venta.save(commit=False)
                     venta.comprobante = comprobante
-                    venta.tipo_venta = 'Crédito'  # Establecer el tipo de venta
+                    venta.tipo_venta = 'Crédito'
                     venta.total = nuevo_total  # Asignar el nuevo total calculado
                     venta.save()
 
@@ -254,13 +248,6 @@ def venta_credito(request):
 
             except Exception as e:
                 form_venta.add_error(None, str(e))
-                # Imprimir el error en la consola
-                print(f"Error al guardar los datos: {e}")
-        else:
-            # Si los formularios no son válidos, imprimir los errores
-            print("Errores en el formulario de Venta:", form_venta.errors)
-            print("Errores en el formulario de VentaCredito:", form_credito.errors)
-            print("Errores en el Formset de DetalleVenta:", formset.errors)
 
     else:
         # Inicializar el formulario de venta con tipo_venta='Crédito'

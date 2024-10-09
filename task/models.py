@@ -123,15 +123,25 @@ class PagoCredito(models.Model):
     
     
 class VentaCredito(models.Model):
+    FRECUENCIA_PAGO_CHOICES = [
+        ('semanal', 'Semanal'),
+        ('quincenal', 'Quincenal'),
+        ('mensual', 'Mensual'),
+    ]
+    
     venta = models.OneToOneField('Venta', on_delete=models.CASCADE)  # Relación con Venta
     monto_inicial = models.DecimalField(max_digits=10, decimal_places=2)
     numero_cuotas = models.IntegerField()
     interes = models.DecimalField(max_digits=4, decimal_places=2)  # Limita el interés al 99.99%
     fecha_limite = models.DateField()
     saldo_restante = models.DecimalField(max_digits=10, decimal_places=2)
-
+    
+    # Nuevo campo para frecuencia de pago
+    frecuencia_pago = models.CharField(max_length=10, choices=FRECUENCIA_PAGO_CHOICES)
+    
     def __str__(self):
-        return f"Venta Crédito - Cuotas: {self.numero_cuotas}"
+        return f"Venta Crédito - Cuotas: {self.numero_cuotas}, Frecuencia: {self.get_frecuencia_pago_display()}"
+
     
 
     
