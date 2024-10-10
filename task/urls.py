@@ -15,6 +15,7 @@ urlpatterns = [
     path('pagos/', views.pagos, name='pagos'),
     path('venta_contado/', views.venta_contado, name='venta_contado'),
     path('venta_credito/', views.venta_credito, name='venta_credito'),
+    path('abonar/<int:venta_id>/', views.abonar, name='abonar'),
     path('pendiente_pago/', views.pendiente_pago, name='pendiente_pago'),
     path('alertas/', views.alertas, name='alertas'),
     path('productos/', views.productos, name='productos'),

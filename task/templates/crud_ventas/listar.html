@@ -16,13 +16,13 @@
               <th scope="col">Vendedor</th>
               <th scope="col">Comprobante</th>
               <th scope="col">Cliente</th>
-              <th scope="col">Acciones</th> <!-- Nueva columna para las acciones -->
+              <th scope="col">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {% for v in venta %}
             <tr>
-              <th scope="row">{{ forloop.counter }}</th>
+              <th scope="row">{{ v.id }}</th> <!-- Usa v.id para mostrar el número de la venta -->
               <td>{{ v.descripcion }}</td>
               <td>{{ v.fecha_venta }}</td>
               <td>{{ v.tipo_venta }}</td>
@@ -35,11 +35,54 @@
                 <a href="{% url 'descargar_comprobante' v.id %}" class="btn btn-success btn-sm">
                     <i class="fa-solid fa-file-arrow-down me-2"></i> Comprobante
                 </a>
-            </td>
+              </td>
             </tr>
             {% endfor %}
-          </tbody>
+        </tbody>
         </table>
     </div>
+
+    <!-- Controles de paginación con estilo de Bootstrap -->
+    <!-- Controles de paginación con estilo de Bootstrap -->
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    <!-- Botón de página anterior -->
+    {% if venta.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ venta.previous_page_number }}">Previous</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <a class="page-link" href="#" tabindex="-1">Previous</a>
+      </li>
+    {% endif %}
+
+    <!-- Números de página -->
+    {% for num in venta.paginator.page_range %}
+      {% if venta.number == num %}
+        <li class="page-item active" aria-current="page">
+          <a class="page-link" href="#">{{ num }}</a>
+        </li>
+      {% elif num > venta.number|add:'-3' and num < venta.number|add:'3' %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    <!-- Botón de página siguiente -->
+    {% if venta.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ venta.next_page_number }}">Next</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <a class="page-link" href="#" tabindex="-1">Next</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+
+
 </div>
 {% endblock %}

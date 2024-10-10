@@ -1,12 +1,95 @@
 {% extends 'index_master.html' %}
 
 {% block content %}
+<!-- page content -->
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 
-    <!-- page content -->
-        <div class="right_col" role="main">
-          <!-- top tiles -->
-          <h1>DASHBOARD PRINCIPAL</h1>
+<div class="right_col" role="main">
+    <!-- Título del dashboard -->
+    <h1>DASHBOARD PRINCIPAL</h1>
 
+    <!-- Contenedor de gráficos, utilizando flex para adaptarse a la pantalla -->
+    <div class="row">
+        <!-- Gráfico de Ventas -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h2>Ventas Semanales</h2>
+                </div>
+                <div class="card-body">
+                    <div id="grafico-ventas" style="width: 100%; height: 400px;"></div>
+                </div>
+            </div>
         </div>
-        <!-- /page content -->
+
+        <!-- Gráfico de Ingresos -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h2>Ingresos Semanales</h2>
+                </div>
+                <div class="card-body">
+                    <div id="grafico-ingresos" style="width: 100%; height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /page content -->
+
+<script>
+    function resizeCharts() {
+        chartVentas.resize();
+        chartIngresos.resize();
+    }
+
+    // Configuración de los gráficos
+    var chartVentas = echarts.init(document.getElementById("grafico-ventas"));
+    var chartIngresos = echarts.init(document.getElementById("grafico-ingresos"));
+
+    var ventasData = {
+        xAxis: {
+            type: "category",
+            data: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+        },
+        yAxis: {
+            type: "value",
+        },
+        series: [
+            {
+                data: [150, 230, 224, 218, 135, 147, 260], // Datos de ventas
+                type: "bar",
+            },
+        ],
+        title: {
+            text: "Ventas Semanales",
+        },
+    };
+
+    var ingresosData = {
+        xAxis: {
+            type: "category",
+            data: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+        },
+        yAxis: {
+            type: "value",
+        },
+        series: [
+            {
+                data: [1000, 2000, 1500, 1800, 1200, 1600, 2100], // Datos de ingresos
+                type: "line",
+            },
+        ],
+        title: {
+            text: "Ingresos Semanales",
+        },
+    };
+
+    chartVentas.setOption(ventasData);
+    chartIngresos.setOption(ingresosData);
+
+    // Ajustar el tamaño de los gráficos al cambiar el tamaño de la ventana
+    window.addEventListener('resize', resizeCharts);
+</script>
+
 {% endblock %}

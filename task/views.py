@@ -7,18 +7,23 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
+from django.urls import reverse
+from django.contrib import messages
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from django.db.models import Max
-from django.http import JsonResponse
+from django.db.models import Max, Sum, Count
+from decimal import Decimal
+from datetime import timedelta
+from django.db import models 
+import datetime
 
 # Third-party imports
 from rest_framework import generics
 
 # Local app imports
 from .forms import CrearVentaForm, DetalleVentaFormSet, AgregarProductoForm, MarcaForm, ColorForm, CrearVentaCreditoForm, DetalleVentaFormSetCredito
-from .models import Comprobante, Venta, Producto, Marca, Color, VentaCredito
+from .models import Comprobante, Venta, Producto, Marca, Color, VentaCredito, PagoCredito, DetalleVenta
 from .serializers import MarcaSerializer, ColorSerializer
 
 
@@ -32,7 +37,18 @@ TEMPLATE_DIRS = (
 
 @login_required
 def home(request):
-    return render (request, "index.html")
+    hoy = timezone.now()
+    inicio_semana = hoy - timedelta(days=hoy.weekday())  # Lunes de esta semana
+    ventas = Venta.objects.filter(fecha_venta__gte=inicio_semana)
+    
+    ventas_dias = [ventas.filter(fecha_venta=hoy - timedelta(days=d)).count() for d in range(7)]
+    ingresos_dias = [ventas.filter(fecha_venta=hoy - timedelta(days=d)).aggregate(total=models.Sum('total'))['total'] or 0 for d in range(7)]
+    
+    context = {
+        'ventas_dias': ventas_dias[::-1],
+        'ingresos_dias': ingresos_dias[::-1],
+    }
+    return render(request, "index.html", context)
 
 #funciones signin, signup, logout
 
@@ -73,14 +89,22 @@ def logout_view(request):
 
 #funciones crud ventas
 
-@login_required       
+@login_required
+@login_required
 def listar(request):
+    ventas_list = Venta.objects.all().order_by('-fecha_venta')
     
-    venta = Venta.objects.all()
-         
-    return render (request, 'crud_ventas/listar.html', {
-        'venta' : venta
-    }) 
+    paginator = Paginator(ventas_list, 10)
+    page_number = request.GET.get('page')
+    ventas_page = paginator.get_page(page_number)
+    
+    # Cálculo del índice inicial de la página actual
+    page_start_index = (ventas_page.number - 1) * ventas_page.paginator.per_page
+
+    return render(request, 'crud_ventas/listar.html', {
+        'venta': ventas_page,
+        'page_start_index': page_start_index
+    })
 
 @login_required
 def productos(request):
@@ -263,13 +287,18 @@ def venta_credito(request):
 
 @login_required
 def pendiente_pago(request):
-    # Obtener todas las ventas que aún tienen saldo pendiente
-    ventas_pendientes = VentaCredito.objects.filter(saldo_restante__gt=0)
+    # Obtener todas las ventas con saldo pendiente, ordenadas por las más recientes
+    ventas_list = VentaCredito.objects.filter(saldo_restante__gt=0).order_by('-venta__fecha_venta')
+    
+    # Configura la paginación, por ejemplo, 10 ventas por página
+    paginator = Paginator(ventas_list, 8)  # Ajusta el número 10 según tus necesidades
+    page_number = request.GET.get('page')
+    ventas_page = paginator.get_page(page_number)
     
     return render(request, 'crud_ventas/pendiente_pago.html', {
-        'ventas_pendientes': ventas_pendientes
+        'ventas_pendientes': ventas_page
     })
-  
+    
 class MarcaListCreate(generics.ListCreateAPIView):
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
@@ -406,8 +435,8 @@ def obtener_notificaciones(request):
 
     return JsonResponse(response_data, safe=False)
 
-
 def alertas(request):
+    
     # Obtener todas las notificaciones sin límite
     stock_urgente = Producto.objects.filter(stock=0)
     stock_alerta = Producto.objects.filter(stock__lte=3, stock__gt=0)
@@ -431,3 +460,24 @@ def alertas(request):
     }
     
     return render(request, 'crud_ventas/alertas.html', context)
+
+@login_required
+def abonar(request, venta_id):
+    venta_credito = get_object_or_404(VentaCredito, id=venta_id)
+    if request.method == 'POST':
+        monto_abono = Decimal(request.POST.get('monto_abono'))
+        if monto_abono > 0 and monto_abono <= venta_credito.saldo_restante:
+            venta_credito.saldo_restante -= monto_abono
+            venta_credito.save()
+            # Registrar el pago en la tabla de pagos de crédito
+            PagoCredito.objects.create(
+                venta_credito=venta_credito,
+                fecha_pago=datetime.date.today(),
+                monto_pago=monto_abono,
+                saldo_pendiente=venta_credito.saldo_restante
+            )
+            messages.success(request, 'Abono realizado exitosamente.')
+        else:
+            messages.error(request, 'El monto ingresado no es válido.')
+    return redirect(reverse('pendiente_pago'))
+
