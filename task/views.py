@@ -291,7 +291,7 @@ def pendiente_pago(request):
     ventas_list = VentaCredito.objects.filter(saldo_restante__gt=0).order_by('-venta__fecha_venta')
     
     # Configura la paginación, por ejemplo, 10 ventas por página
-    paginator = Paginator(ventas_list, 8)  # Ajusta el número 10 según tus necesidades
+    paginator = Paginator(ventas_list, 10)  # Ajusta el número 10 según tus necesidades
     page_number = request.GET.get('page')
     ventas_page = paginator.get_page(page_number)
     

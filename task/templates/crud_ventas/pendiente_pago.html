@@ -5,74 +5,73 @@
 <div class="right_col" role="main">
     <h1>Ventas Pendientes de Pago</h1>
     <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Número de Venta</th>
-                    <th>Cliente</th>
-                    <th>Producto</th>
-                    <th>Monto Inicial</th>
-                    <th>Saldo Restante</th>
-                    <th>Fecha de Venta</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for venta in ventas_pendientes %}
-                <tr>
-                    <td>{{ venta.venta.id }}</td>
-                    <td>{{ venta.venta.cliente.nombre }}</td>
-                    <td>
-                        {% for detalle in venta.venta.detalleventa_set.all %}
-                            {{ detalle.producto.nombre }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            Sin productos
-                        {% endfor %}
-                    </td>
-                    <td>{{ venta.monto_inicial }}</td>
-                    <td>{{ venta.saldo_restante }}</td>
-                    <td>{{ venta.venta.fecha_venta }}</td>
-                    <td>
-                        <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#abonoModal-{{ venta.id }}">
-                            <i class="fa-solid fa-hand-holding-medical"></i> Abonar
-                        </button>
-                    </td>
-                </tr>
-
-                <!-- Modal de abono -->
-                <div class="modal fade" id="abonoModal-{{ venta.id }}" tabindex="-1" aria-labelledby="abonoModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="abonoModalLabel">Abonar a Venta {{ venta.venta.id }}</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <form action="{% url 'abonar' venta.id %}" method="POST">
-                                    {% csrf_token %}
-                                    <div class="form-group">
-                                        <label for="monto_abono">Monto a abonar:</label>
-                                        <input type="number" step="0.01" class="form-control" name="monto_abono" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-success btn-sm">
-                                        <i class="fa-solid fa-hand-holding-medical"></i> Realizar Abono
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <tr>
-                    <td colspan="7">No hay ventas pendientes de pago.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+      <table class="table table-striped table-borderless table-sm table-light">
+          <thead>
+              <tr>
+                  <th>Número de Venta</th>
+                  <th>Cliente</th>
+                  <th>Producto</th>
+                  <th>Monto Inicial</th>
+                  <th>Saldo Restante</th>
+                  <th>Fecha de Venta</th>
+                  <th>Acciones</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for venta in ventas_pendientes %}
+              <tr>
+                  <td>{{ venta.venta.id }}</td>
+                  <td>{{ venta.venta.cliente.nombre }}</td>
+                  <td>
+                      {% for detalle in venta.venta.detalleventa_set.all %}
+                          {{ detalle.producto.nombre }}{% if not forloop.last %}, {% endif %}
+                      {% empty %}
+                          Sin productos
+                      {% endfor %}
+                  </td>
+                  <td>{{ venta.monto_inicial }}</td>
+                  <td>{{ venta.saldo_restante }}</td>
+                  <td>{{ venta.venta.fecha_venta }}</td>
+                  <td>
+                      <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#abonoModal-{{ venta.id }}">
+                          <i class="fa-solid fa-hand-holding-medical"></i> Abonar
+                      </button>
+                  </td>
+              </tr>
+              <!-- Modal de abono -->
+              <div class="modal fade" id="abonoModal-{{ venta.id }}" tabindex="-1" aria-labelledby="abonoModalLabel"
+                  aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="modal-content">
+                          <div class="modal-header">
+                              <h5 class="modal-title" id="abonoModalLabel">Abonar a Venta {{ venta.venta.id }}</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                              </button>
+                          </div>
+                          <div class="modal-body">
+                              <form action="{% url 'abonar' venta.id %}" method="POST">
+                                  {% csrf_token %}
+                                  <div class="form-group">
+                                      <label for="monto_abono">Monto a abonar:</label>
+                                      <input type="number" step="0.01" class="form-control" name="monto_abono" required>
+                                  </div>
+                                  <button type="submit" class="btn btn-success btn-sm">
+                                      <i class="fa-solid fa-hand-holding-medical"></i> Realizar Abono
+                                  </button>
+                              </form>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              {% empty %}
+              <tr>
+                  <td colspan="7">No hay ventas pendientes de pago.</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
 
     <!-- Controles de paginación -->
     <nav aria-label="Page navigation example">

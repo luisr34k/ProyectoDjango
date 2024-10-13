@@ -1,7 +1,17 @@
 #forms.py
 from django.forms import ModelForm, inlineformset_factory
+from django.contrib.auth.forms import AuthenticationForm
 from django import forms
 from .models import Venta, DetalleVenta, Producto, Marca, Color, VentaCredito
+
+
+from django import forms
+
+class LoginForm(AuthenticationForm):
+    def add_class(self, field_name, css_class):
+        self.fields[field_name].widget.attrs['class'] = css_class
+        return self.fields[field_name]
+
 
 class MarcaForm(forms.ModelForm):
     class Meta:
@@ -10,6 +20,7 @@ class MarcaForm(forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la Marca'}),
         }
+  
         
 class ColorForm(forms.ModelForm):
     class Meta:
@@ -18,6 +29,7 @@ class ColorForm(forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del color'}),
         }
+
 
 class AgregarProductoForm(forms.ModelForm):
     class Meta:
@@ -58,7 +70,6 @@ class CrearVentaForm(forms.ModelForm):
         }
 
 
-
 class CrearVentaCreditoForm(forms.ModelForm):
     class Meta:
         model = VentaCredito
@@ -72,8 +83,7 @@ class CrearVentaCreditoForm(forms.ModelForm):
             'frecuencia_pago': forms.Select(attrs={'class': 'form-control'})  # Agrega el selector para la frecuencia de pago
         }
 
-        
-        
+          
 DetalleVentaFormSetCredito = inlineformset_factory(Venta, DetalleVenta, form=DetalleVentaForm, extra=1)
 
 DetalleVentaFormSet = inlineformset_factory(Venta, DetalleVenta, form=DetalleVentaForm, extra=1)
