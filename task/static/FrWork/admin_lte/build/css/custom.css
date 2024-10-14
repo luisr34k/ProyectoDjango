@@ -816,9 +816,7 @@
   z-index: 9999;
   position: absolute; }
 
-.nav-sm .container.body .col-md-3.left_col.menu_fixed {
-  position: fixed;
-  height: 100%; }
+
 
 .nav-sm .container.body .col-md-3.left_col .mCSB_container,
 .nav-sm .container.body .col-md-3.left_col .mCustomScrollBox {
@@ -1017,9 +1015,15 @@
   display: flex;
   z-index: 1; }
 
-.nav-md .container.body .col-md-3.left_col.menu_fixed {
-  height: 100%;
-  position: fixed; }
+  .left_col.menu_fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+  
 
 body .container.body .right_col {
   background: #F7F7F7; }
