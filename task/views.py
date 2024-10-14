@@ -52,7 +52,7 @@ def home(request):
 
 #funciones signin, signup, logout
 
-@login_required
+
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html', {"form": UserCreationForm})
@@ -89,7 +89,7 @@ def logout_view(request):
 
 #funciones crud ventas
 
-@login_required
+
 @login_required
 def listar(request):
     ventas_list = Venta.objects.all().order_by('-fecha_venta')
