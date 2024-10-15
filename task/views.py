@@ -52,7 +52,20 @@ def home(request):
 
 #funciones signin, signup, logout
 
+def signin(request):
+    if request.method == 'GET':
+        return render(request, 'signin.html', {"form": AuthenticationForm})
+    else:
+        user = authenticate(
+            request, username=request.POST['username'], password=request.POST['password'])
+        if user is None:
+            return render(request, 'signin.html', {"form": AuthenticationForm, "error": "Username or password is incorrect."})
 
+        login(request, user)
+        return redirect('home') 
+    
+
+@login_required
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html', {"form": UserCreationForm})
@@ -70,25 +83,12 @@ def signup(request):
 
         return render(request, 'signup.html', {"form": UserCreationForm, "error": "Passwords did not match."})
    
-def signin(request):
-    if request.method == 'GET':
-        return render(request, 'signin.html', {"form": AuthenticationForm})
-    else:
-        user = authenticate(
-            request, username=request.POST['username'], password=request.POST['password'])
-        if user is None:
-            return render(request, 'signin.html', {"form": AuthenticationForm, "error": "Username or password is incorrect."})
-
-        login(request, user)
-        return redirect('home') 
-    
 @login_required
 def logout_view(request):
     logout(request)
     return redirect('signin')  # Redirige a la página de inicio de sesión
 
 #funciones crud ventas
-
 
 @login_required
 def listar(request):
@@ -123,6 +123,18 @@ def credito(request):
 def ventas(request):
     return render (request, 'crud_ventas/ventas.html')   
 
+@login_required
+def pagos(request):
+    pagos_list = PagoCredito.objects.select_related('venta_credito__venta__cliente').prefetch_related('venta_credito__venta__detalleventa_set__producto').order_by('-fecha_pago')
+    paginator = Paginator(pagos_list, 10)  # Cambia 10 por el número de registros que deseas por página
+    page_number = request.GET.get('page')
+    pagos = paginator.get_page(page_number)
+
+    context = {
+        'pagos': pagos,
+    }
+    return render(request, 'crud_ventas/pagos.html', context)
+
 @login_required 
 def alertas(request):
     return render (request, 'crud_ventas/alertas.html')  
@@ -143,11 +155,6 @@ def agregarProducto(request):
     return render(request, 'crud_ventas/AgregarProducto.html', {
         'form': form
     })
-
-
-@login_required
-def pagos(request):
-    return render (request, 'crud_ventas/pagos.html')   
 
 @login_required
 def marcas(request):
@@ -344,6 +351,34 @@ def descargar_comprobante_pdf(request, venta_id):
     # Crear el objeto HttpResponse con el contenido PDF
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="Comprobante_{venta.comprobante.numero_comprobante}.pdf"'
+
+    # Convertir el HTML a PDF
+    pisa_status = pisa.CreatePDF(template, dest=response)
+
+    # Verificar si hubo errores
+    if pisa_status.err:
+        return HttpResponse('Ocurrió un error al generar el PDF', status=400)
+    
+    return response
+
+@login_required
+def descargar_comprobante_pago(request, pago_id):
+    # Obtener el pago específico
+    pago = get_object_or_404(PagoCredito, id=pago_id)
+    
+    # Definir el contexto para la plantilla
+    context = {
+        'pago': pago,
+        'venta': pago.venta_credito.venta,
+        'cliente': pago.venta_credito.venta.cliente,
+    }
+    
+    # Renderizar la plantilla a un string
+    template = render_to_string('elementos/pdf_comprobante_pago.html', context)
+
+    # Crear el objeto HttpResponse con el contenido PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Comprobante_Pago_{pago_id}.pdf"'
 
     # Convertir el HTML a PDF
     pisa_status = pisa.CreatePDF(template, dest=response)

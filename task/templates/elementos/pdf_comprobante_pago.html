@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprobante de Pago</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .details {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .details td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Comprobante de Pago</h1>
+        <p><strong>Fecha del Pago:</strong> {{ pago.fecha_pago }}</p>
+        <p><strong>Monto del Pago:</strong> {{ pago.monto_pago }}</p>
+        <p><strong>Saldo Pendiente:</strong> {{ pago.saldo_pendiente }}</p>
+    </div>
+
+    <h2>Detalles de la Venta Asociada</h2>
+    <table class="details">
+        <tr>
+            <td><strong>Cliente</strong></td>
+            <td>{{ cliente.nombre }}</td>
+        </tr>
+        <tr>
+            <td><strong>Fecha de Venta</strong></td>
+            <td>{{ venta.fecha_venta }}</td>
+        </tr>
+        <tr>
+            <td><strong>Total Venta</strong></td>
+            <td>{{ venta.total }}</td>
+        </tr>
+    </table>
+</body>
+</html>
