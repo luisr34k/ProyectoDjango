@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
@@ -23,7 +24,7 @@ from rest_framework import generics
 
 # Local app imports
 from .forms import CrearVentaForm, DetalleVentaFormSet, AgregarProductoForm, MarcaForm, ColorForm, CrearVentaCreditoForm, DetalleVentaFormSetCredito
-from .models import Comprobante, Venta, Producto, Marca, Color, VentaCredito, PagoCredito, DetalleVenta
+from .models import Comprobante, Venta, Producto, Marca, Color, VentaCredito, PagoCredito, Cliente
 from .serializers import MarcaSerializer, ColorSerializer
 
 
@@ -107,6 +108,18 @@ def listar(request):
     })
 
 @login_required
+def listar_clientes(request):
+    clientes_list = Cliente.objects.all().order_by('nombre')  # Ordena alfabéticamente por nombre
+    paginator = Paginator(clientes_list, 10)  # Cambia el número 10 a la cantidad deseada por página
+    page_number = request.GET.get('page')
+    clientes = paginator.get_page(page_number)
+
+    context = {
+        'clientes': clientes,
+    }
+    return render(request, 'crud_ventas/listar_clientes.html', context)
+
+@login_required
 def productos(request):
     
     producto = Producto.objects.all()
@@ -115,9 +128,6 @@ def productos(request):
         'producto' : producto
     })
 
-@login_required    
-def credito(request):
-    return render (request, 'crud_ventas/credito.html') 
 
 @login_required   
 def ventas(request):
@@ -163,17 +173,19 @@ def marcas(request):
 @login_required
 def venta_contado(request):
     if request.method == 'POST':
-        print("Formulario enviado correctamente")  # Verifica que el POST se está ejecutando
+        print("Formulario enviado correctamente")
         form = CrearVentaForm(request.POST)
         formset = DetalleVentaFormSet(request.POST)
+
+        # Imprimir datos de POST para depuración
+        print("Datos POST recibidos:", request.POST)
 
         if form.is_valid() and formset.is_valid():
             try:
                 with transaction.atomic():
-                    print("Formulario y formset válidos")  # Verifica que los formularios son válidos
-                    # Lógica de guardar la venta
-                    comprobante_number = generate_comprobante_number()
+                    print("Formulario y formset válidos")
 
+                    comprobante_number = generate_comprobante_number()
                     comprobante = Comprobante(
                         nombre='Comprobante de Venta',
                         tipo_comprobante='Venta Contado',
@@ -182,49 +194,44 @@ def venta_contado(request):
                     )
                     comprobante.save()
 
-                    # Guardar la venta con el tipo de venta 'Contado'
                     venta = form.save(commit=False)
                     venta.comprobante = comprobante
-                    venta.tipo_venta = 'Contado'  # Establecer el tipo de venta a 'Contado'
+                    venta.tipo_venta = 'Contado'
                     venta.save()
 
-                    # Guardar los detalles de la venta
                     detalles = formset.save(commit=False)
                     for detalle in detalles:
                         detalle.venta = venta
-                        
-                        # Disminuir la cantidad de stock del producto
                         producto = detalle.producto
                         if producto.stock >= detalle.cantidad:
                             producto.stock -= detalle.cantidad
                             producto.save()
                         else:
-                            # Lanza un error si el stock no es suficiente
                             raise ValueError(f"Stock insuficiente para el producto: {producto.nombre}")
-                        
+
                         detalle.save()
 
-                # Si todo fue bien, redirigir a la página de listado
+                print("Venta guardada exitosamente")
                 return redirect('listar')
 
             except Exception as e:
-                # Si ocurre cualquier error, se hará un rollback y se mostrará el error
                 form.add_error(None, str(e))
                 print(f"Error al procesar la venta: {e}")
         else:
-            print("Formulario o formset no válidos")  # Debug en caso de error de validación
-            print(form.errors)  # Muestra los errores del formulario principal
-            print(formset.errors)  # Muestra los errores del formset
+            # Depuración de errores de validación del formulario
+            print("Formulario o formset no válidos")  
+            print("Errores en form:", form.errors)
+            for form_error in formset:
+                print("Errores en formset:", form_error.errors)
     else:
-        # Inicializar el formulario con tipo_venta='Contado'
-        form = CrearVentaForm(initial={'tipo_venta': 'Contado'})  # Asegurar que tipo_venta es 'Contado'
+        form = CrearVentaForm(initial={'tipo_venta': 'Contado'})
         formset = DetalleVentaFormSet()
-    
+
     return render(request, 'crud_ventas/venta_contado.html', {
         'form': form,
         'formset': formset
     })
-
+    
 @login_required
 def venta_credito(request):
     if request.method == 'POST':
@@ -430,6 +437,22 @@ def buscar_producto(request):
                 'color': producto.color.nombre,  # Asumiendo que tienes un campo relacionado llamado 'color'
                 'stock': producto.stock,  # Agregar el stock disponible
                 
+            })
+        return JsonResponse({'resultados': resultados})
+    return JsonResponse({'resultados': []})
+
+def buscar_cliente(request):
+    query = request.GET.get('query', '')
+    if query:
+        clientes = Cliente.objects.filter(nombre__icontains=query)
+        resultados = []
+        for cliente in clientes:
+            resultados.append({
+                'id': cliente.id,
+                'nombre': cliente.nombre,
+                'nit': cliente.nit,
+                'direccion': cliente.direccion,
+                'telefono': cliente.telefono,
             })
         return JsonResponse({'resultados': resultados})
     return JsonResponse({'resultados': []})

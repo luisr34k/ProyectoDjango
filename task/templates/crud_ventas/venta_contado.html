@@ -72,7 +72,30 @@
                         </div>
                         <div class="form-group">
                             {{ form.cliente.label_tag }}
-                            {{ form.cliente|add_class:"form-control" }}
+                            <div class="input-group">
+                                <input type="text" id="cliente-buscador" class="form-control" placeholder="Selecciona un Cliente" readonly>
+                                {{ form.cliente|add_class:"form-control d-none" }}
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modalBuscarCliente">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal para Buscar Cliente -->
+                        <div class="modal fade" id="modalBuscarCliente" tabindex="-1" role="dialog" aria-labelledby="modalBuscarClienteLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalBuscarClienteLabel">Buscar Cliente</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <input type="text" id="modal-cliente-buscador" class="form-control" placeholder="Buscar Cliente" autocomplete="off">
+                                        <div class="modal-resultados-busqueda-cliente mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <!-- Total, seteado y no editable -->
@@ -149,6 +172,45 @@
             form.find('.resultados-busqueda').html('');
         });
     });
+
+    $(document).ready(function () {
+    $('#modal-cliente-buscador').keyup(function () {
+        var query = $(this).val();
+        
+        if (query.length > 2) {
+            $.ajax({
+                url: '{% url "buscar_cliente" %}',  // URL de la vista para buscar clientes
+                data: {
+                    'query': query
+                },
+                success: function (data) {
+                    var resultados = data.resultados;
+                    var html = '<ul class="list-group">';
+                    resultados.forEach(function (cliente) {
+                        html += '<li class="list-group-item cliente-item" data-id="' + cliente.id + '">' + cliente.nombre + ' - NIT: ' + cliente.nit + '</li>';
+                    });
+                    html += '</ul>';
+                    $('.modal-resultados-busqueda-cliente').html(html);
+                }
+            });
+        } else {
+            $('.modal-resultados-busqueda-cliente').html('');
+        }
+    });
+
+    // Seleccionar un cliente del modal de resultados
+    $(document).on('click', '.cliente-item', function () {
+        var clienteId = $(this).data('id');
+        var clienteNombre = $(this).text();
+
+        // Setear el cliente seleccionado en el campo principal
+        $('#cliente-buscador').val(clienteNombre);  // Mostrar el nombre del cliente en el campo de búsqueda
+        $('#id_cliente').val(clienteId);  // Setear el valor en el campo oculto de cliente del formulario
+
+        // Cerrar el modal
+        $('#modalBuscarCliente').modal('hide');
+    });
+});
 
 
 
