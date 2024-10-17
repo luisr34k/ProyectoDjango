@@ -3,31 +3,33 @@
 
 {% block content %}
 <div class="right_col" role="main">
+
+
     <h1>Vender al contado</h1>
 
     <form action="{% url 'venta_contado' %}" method="POST">
         {% csrf_token %}
-        
+
         <!-- Detalles de Venta -->
         <h2>Detalles de Venta</h2>
         {{ formset.management_form }}
         {% for form in formset %}
-            <div class="producto-form">
-                <div class="form-group">
-                    <!-- Este es el campo de producto_busqueda que renderiza Django -->
-                    {{ form.producto_busqueda }}
-                </div>
-                <div class="resultados-busqueda"></div>
-
-                <!-- Campos ocultos para mantener el producto seleccionado -->
-                {{ form.producto }}
-
-                <div class="producto-info">
-                    <p><strong>Precio del Producto:</strong> <span class="precio"></span></p>
-                    <p><strong>Color del Producto:</strong> <span class="color"></span></p>
-                    <p><strong>Stock Disponible:</strong> <span class="stock"></span></p> 
-                </div>
+        <div class="producto-form">
+            <div class="form-group">
+                <!-- Este es el campo de producto_busqueda que renderiza Django -->
+                {{ form.producto_busqueda }}
             </div>
+            <div class="resultados-busqueda"></div>
+
+            <!-- Campos ocultos para mantener el producto seleccionado -->
+            {{ form.producto }}
+
+            <div class="producto-info">
+                <p><strong>Precio del Producto:</strong> <span class="precio"></span></p>
+                <p><strong>Color del Producto:</strong> <span class="color"></span></p>
+                <p><strong>Stock Disponible:</strong> <span class="stock"></span></p>
+            </div>
+        </div>
         {% endfor %}
 
         <!-- Nueva sección estilizada de Información de la Venta -->
@@ -41,7 +43,8 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             {{ form.descripcion.label_tag }}
-                            <input type="{{ form.descripcion.field.widget.input_type }}" class="form-control" name="{{ form.descripcion.name }}" value="{{ form.descripcion.value }}">
+                            <input type="{{ form.descripcion.field.widget.input_type }}" class="form-control"
+                                name="{{ form.descripcion.name }}" value="{{ form.descripcion.value }}">
                         </div>
                         <div class="form-group">
                             {{ form.fecha_venta.label_tag }}
@@ -52,13 +55,12 @@
                             {{ form.tipo_venta|add_class:"form-control" }}
                         </div>
                         <div class="form-group">
-                            {{ formset.management_form }}
                             {% for form in formset %}
-                                <label for="{{ form.cantidad.id_for_label }}">Cantidad</label>
-                                {{ form.cantidad|add_class:"form-control" }}
+                            <label for="{{ form.cantidad.id_for_label }}">Cantidad</label>
+                            {{ form.cantidad|add_class:"form-control" }}
                             {% endfor %}
                         </div>
-                        
+
                     </div>
                     <!-- Segunda columna -->
                     <div class="col-md-6">
@@ -73,15 +75,28 @@
                         <div class="form-group">
                             {{ form.cliente.label_tag }}
                             <div class="input-group">
-                                <input type="text" id="cliente-buscador" class="form-control" placeholder="Selecciona un Cliente" readonly>
-                                {{ form.cliente|add_class:"form-control d-none" }}
+                                <input type="text" id="cliente-buscador" class="form-control"
+                                    placeholder="Selecciona o Agrega un Cliente" readonly>
+                                <input type="hidden" id="id_cliente" name="cliente">
+                                <!-- Campo oculto para almacenar el ID del cliente -->
                                 <div class="input-group-append">
-                                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modalBuscarCliente">Buscar</button>
+                                    <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                        data-target="#modalBuscarCliente">Buscar</button>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                                        data-target="#modalAgregarCliente">Agregar</button>
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <!-- Total, seteado y no editable -->
+                            {{ form.total.label_tag }}
+                            <input type="number" id="total" name="{{ form.total.name }}" value="0" class="form-control"
+                                readonly>
+                        </div>
+
                         <!-- Modal para Buscar Cliente -->
-                        <div class="modal fade" id="modalBuscarCliente" tabindex="-1" role="dialog" aria-labelledby="modalBuscarClienteLabel" aria-hidden="true">
+                        <div class="modal fade" id="modalBuscarCliente" tabindex="-1" role="dialog"
+                            aria-labelledby="modalBuscarClienteLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -91,16 +106,12 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <input type="text" id="modal-cliente-buscador" class="form-control" placeholder="Buscar Cliente" autocomplete="off">
+                                        <input type="text" id="modal-cliente-buscador" class="form-control"
+                                            placeholder="Buscar Cliente" autocomplete="off">
                                         <div class="modal-resultados-busqueda-cliente mt-3"></div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <!-- Total, seteado y no editable -->
-                            {{ form.total.label_tag }}
-                            <input type="number" id="total" name="{{ form.total.name }}" value="0" class="form-control" readonly>
                         </div>
                     </div>
                 </div>
@@ -110,12 +121,53 @@
         <button type="submit" class="btn btn-success">
             Guardar <i class="fa-solid fa-circle-plus"></i>
         </button>
-        
-        
+
+
     </form>
 </div>
 
+<!-- Modal para Agregar Cliente -->
+<div class="modal fade" id="modalAgregarCliente" tabindex="-1" role="dialog" aria-labelledby="modalAgregarClienteLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAgregarClienteLabel">Agregar Cliente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formAgregarCliente">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="correo">Correo</label>
+                        <input type="email" class="form-control" id="correo" name="correo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="text" class="form-control" id="telefono" name="telefono" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" class="form-control" id="direccion" name="direccion" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nit">NIT</label>
+                        <input type="text" class="form-control" id="nit" name="nit">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="guardarCliente">Guardar Cliente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- JavaScript para manejar la búsqueda y actualización de cantidad y total -->
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -151,72 +203,83 @@
             var productoId = $(this).data('id');
             var productoPrecio = $(this).data('precio');
             var productoColor = $(this).data('color');
-            var productoStock = $(this).data('stock');  // Obtener el stock disponible
+            var productoStock = $(this).data('stock');
             var form = $(this).closest('div.producto-form');
 
-            // Asignar el nombre del producto al campo visible de búsqueda
             form.find('.producto-buscador').val(productoNombre);
-
-            // Actualizar los detalles de precio, color y stock
             form.find('.precio').text(productoPrecio);
             form.find('.color').text(productoColor);
-            form.find('.stock').text(productoStock);  // Mostrar el stock disponible
-
-            // Asignar el ID del producto al campo oculto del formulario
+            form.find('.stock').text(productoStock);
             form.find('input[name$="-producto"]').val(productoId);
 
-            // Actualizar el total con el precio del producto y cantidad fija de 1
             $('#total').val(productoPrecio);
-
-            // Limpiar los resultados de búsqueda
             form.find('.resultados-busqueda').html('');
         });
-    });
 
-    $(document).ready(function () {
-    $('#modal-cliente-buscador').keyup(function () {
-        var query = $(this).val();
-        
-        if (query.length > 2) {
+        // Buscar y seleccionar cliente
+        $('#modal-cliente-buscador').keyup(function () {
+            var query = $(this).val();
+
+            if (query.length > 2) {
+                $.ajax({
+                    url: '{% url "buscar_cliente" %}',  // URL de la vista para buscar clientes
+                    data: {
+                        'query': query
+                    },
+                    success: function (data) {
+                        var resultados = data.resultados;
+                        var html = '<ul class="list-group">';
+                        resultados.forEach(function (cliente) {
+                            html += '<li class="list-group-item cliente-item" data-id="' + cliente.id + '">' + cliente.nombre + ' - NIT: ' + cliente.nit + '</li>';
+                        });
+                        html += '</ul>';
+                        $('.modal-resultados-busqueda-cliente').html(html);
+                    }
+                });
+            } else {
+                $('.modal-resultados-busqueda-cliente').html('');
+            }
+        });
+
+        // Seleccionar un cliente del modal de resultados
+        $(document).on('click', '.cliente-item', function () {
+            var clienteId = $(this).data('id');
+            var clienteNombre = $(this).text();
+
+            $('#cliente-buscador').val(clienteNombre);
+            $('#id_cliente').val(clienteId);
+            $('#modalBuscarCliente').modal('hide');
+        });
+
+        // Guardar cliente desde el modal de agregar cliente
+        $('#guardarCliente').on('click', function () {
+            var data = {
+                'nombre': $('#nombre').val(),
+                'correo': $('#correo').val(),
+                'telefono': $('#telefono').val(),
+                'direccion': $('#direccion').val(),
+                'nit': $('#nit').val(),
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            };
+
             $.ajax({
-                url: '{% url "buscar_cliente" %}',  // URL de la vista para buscar clientes
-                data: {
-                    'query': query
+                url: '{% url "crear_cliente" %}',
+                type: 'POST',
+                data: data,
+                success: function (response) {
+                    $('#cliente-buscador').val(response.nombre + ' - NIT: ' + response.nit);
+                    $('#id_cliente').val(response.id);
+                    $('#modalAgregarCliente').modal('hide');
+                    $('#formAgregarCliente')[0].reset();
                 },
-                success: function (data) {
-                    var resultados = data.resultados;
-                    var html = '<ul class="list-group">';
-                    resultados.forEach(function (cliente) {
-                        html += '<li class="list-group-item cliente-item" data-id="' + cliente.id + '">' + cliente.nombre + ' - NIT: ' + cliente.nit + '</li>';
-                    });
-                    html += '</ul>';
-                    $('.modal-resultados-busqueda-cliente').html(html);
+                error: function () {
+                    alert("Error al agregar el cliente. Intenta nuevamente.");
                 }
             });
-        } else {
-            $('.modal-resultados-busqueda-cliente').html('');
-        }
+        });
     });
-
-    // Seleccionar un cliente del modal de resultados
-    $(document).on('click', '.cliente-item', function () {
-        var clienteId = $(this).data('id');
-        var clienteNombre = $(this).text();
-
-        // Setear el cliente seleccionado en el campo principal
-        $('#cliente-buscador').val(clienteNombre);  // Mostrar el nombre del cliente en el campo de búsqueda
-        $('#id_cliente').val(clienteId);  // Setear el valor en el campo oculto de cliente del formulario
-
-        // Cerrar el modal
-        $('#modalBuscarCliente').modal('hide');
-    });
-});
-
-
-
 </script>
 
-<!-- Estilos personalizados -->
 <style>
     .producto-buscador {
         width: 100%;
@@ -263,5 +326,6 @@
     .card-body {
         padding: 20px;
     }
+    
 </style>
 {% endblock %}

@@ -539,3 +539,29 @@ def abonar(request, venta_id):
             messages.error(request, 'El monto ingresado no es válido.')
     return redirect(reverse('pendiente_pago'))
 
+@login_required
+def crear_cliente(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        correo = request.POST.get('correo')
+        telefono = request.POST.get('telefono')
+        direccion = request.POST.get('direccion')
+        nit = request.POST.get('nit')
+
+        # Crear el nuevo cliente
+        cliente = Cliente.objects.create(
+            nombre=nombre,
+            correo=correo,
+            telefono=telefono,
+            direccion=direccion,
+            nit=nit
+        )
+
+        # Devuelve los datos del cliente como JSON
+        return JsonResponse({
+            'id': cliente.id,
+            'nombre': cliente.nombre,
+            'nit': cliente.nit
+        })
+
+    return JsonResponse({'error': 'Petición inválida'}, status=400)
