@@ -171,6 +171,10 @@ def marcas(request):
     return render (request, 'elementos/marcas.html') 
 
 @login_required
+def categorias(request):
+    return render (request, 'elementos/categorias.html') 
+
+@login_required
 def venta_contado(request):
     if request.method == 'POST':
         print("Formulario enviado correctamente")

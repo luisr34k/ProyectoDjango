@@ -22,6 +22,7 @@ urlpatterns = [
     path('pendiente_pago/', views.pendiente_pago, name='pendiente_pago'),
     path('alertas/', views.alertas, name='alertas'),
     path('productos/', views.productos, name='productos'),
+    path('categorias/', views.categorias, name='categorias'),
     path('AgregarProducto/', views.agregarProducto, name='AgregarProducto'),
     path('obtener_producto/', views.obtener_producto, name='obtener_producto'),
     path('buscar_producto/', views.buscar_producto, name='buscar_producto'),
